@@ -31,6 +31,7 @@ quiet_cmd_cxx = " CXX   $@"
 cmd_cxx = $(CXX) $(2)
 quiet_cmd_ccld = " CCLD  $@"
 cmd_ccld = $(CXX) $(2)
+cmd_makedep = $(1) $(2)
 quiet_cmd_strip = " STRIP $@"
 cmd_strip = $(STRIP) $(1)
 quiet_cmd_rm = " CLEAN $(2)"
@@ -57,6 +58,16 @@ cmd_ldconfig = ldconfig
 define run-cmd
 	@echo $($(quiet)cmd_$(1))
 	@$(cmd_$(1))
+endef
+
+define makedep
+	@if [ -z "$(quiet)" ]; then \
+		echo $(cmd_makedep); \
+	fi
+	@$(cmd_makedep)
+	@if [ "$($dir $<)" != "./" ]; then \
+		sed -i "s|^$(notdir $@):|$@:|" .dep/$*.d; \
+	fi
 endef
 
 define debug-strip
@@ -102,6 +113,7 @@ STRIP = strip -x
 INSTALL = install
 INSTALL_FILE = $(INSTALL) -m644
 INSTALL_BIN = $(INSTALL) -m755
+INSTALL_DIR = mkdir -p
 UID = $(shell id -u)
 
 export CC CXX DEBUG UID

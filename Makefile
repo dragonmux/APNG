@@ -17,9 +17,16 @@ LIBDIR ?= $(PREFIX)/lib
 O = crc32.o stream.o reader.o
 SO = libAPNG.so
 
+DEPS = .dep
+
 default: all
 
-all: $(SO)
+all: $(DEPS) $(SO)
+
+.dep:
+	$(call run-cmd,install_dir,.dep)
+
+$(O): $(DEPS)
 
 $(SO): $(O)
 	$(call run-cmd,ccld,$(LFLAGS))
@@ -40,8 +47,9 @@ $(SO): $(O)
 #install:
 #	$(cal run-cmd,install_bin,$(EXE),$(PATH))
 
-clean:
+clean: $(DEPS)
 	$(call run-cmd,rm,APNG,$(O) $(SO))
+	$(call run-cmd,rm,makedep,.dep/*.d)
 
 .PHONY: default all clean test check install
 
