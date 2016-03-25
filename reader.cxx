@@ -98,7 +98,19 @@ apng_t::apng_t(stream_t &stream)
 		_interlacing = interlace_t(headerData[12]);
 	}(stream);
 
-	chunks.emplace_back(chunk_t::loadChunk(stream));
+	while (!stream.atEOF())
+		chunks.emplace_back(chunk_t::loadChunk(stream));
+
+	if (!contains(chunks, isIDAT))
+		throw invalidPNG_t();
+
+	[&chunks]()
+	{
+		const chunk_t &end = chunks.back();
+		chunks.pop_back();
+		if (!isIEND(end) || end.length() != 0)
+			throw invalidPNG_t();
+	}();
 }
 
 void apng_t::checkSig(stream_t &stream)
