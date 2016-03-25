@@ -7,7 +7,7 @@
 #include "internals.hxx"
 #include "stream.hxx"
 
-fileStream_t::fileStream_t(const char *const fileName, const int32_t mode) noexcept : fd(-1)
+fileStream_t::fileStream_t(const char *const fileName, const int32_t mode) noexcept : fd(-1), eof(false)
 {
 	fd = open(fileName, mode);
 	if (fd == -1)
@@ -18,11 +18,18 @@ fileStream_t::~fileStream_t() noexcept { close(fd); }
 
 bool fileStream_t::read(void *const value, const size_t length) noexcept
 {
+	if (eof)
+		return false;
 	ssize_t ret = ::read(fd, value, length);
 	if (ret < 0)
 		throw std::system_error(errno, std::system_category());
+	else if (ret == 0)
+		eof = true;
 	return size_t(ret) == length;
 }
+
+bool fileStream_t::atEOF() const noexcept
+	{ return eof; }
 
 memoryStream_t::memoryStream_t(void *const file, const size_t fileLength) noexcept :
 	memory(file), length(fileLength) { }
@@ -35,3 +42,6 @@ bool memoryStream_t::read(void *const value, const size_t valueLen) noexcept
 	pos += valueLen;
 	return true;
 }
+
+bool memoryStream_t::atEOF() const noexcept
+	{ return pos == length; }
