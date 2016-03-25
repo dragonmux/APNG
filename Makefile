@@ -14,7 +14,7 @@ LFLAGS = $(OPTIM_FLAGS) -shared $(O) $(LIBS) -Wl,-soname,$@ -z defs -o $@
 PREFIX ?= /usr
 LIBDIR ?= $(PREFIX)/lib
 
-O = crc32.o stream.o reader.o
+O = crc32.o stream.o conversions.o reader.o
 SO = libAPNG.so
 
 DEPS = .dep
