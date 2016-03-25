@@ -78,7 +78,7 @@ bool isIDAT(const chunk_t &chunk) noexcept { return chunk.type() == typeIDAT; }
 bool isFCTL(const chunk_t &chunk) noexcept { return chunk.type() == typeFCTL; }
 bool isIEND(const chunk_t &chunk) noexcept { return chunk.type() == typeIEND; }
 
-apng_t::apng_t(stream_t &stream) noexcept
+apng_t::apng_t(stream_t &stream)
 {
 	std::vector<chunk_t> chunks;
 	checkSig(stream);
@@ -86,7 +86,7 @@ apng_t::apng_t(stream_t &stream) noexcept
 	chunks.emplace_back(chunk_t::loadChunk(stream));
 }
 
-void apng_t::checkSig(stream_t &stream) noexcept
+void apng_t::checkSig(stream_t &stream)
 {
 	std::array<uint8_t, 8> sig;
 	stream.read(sig);

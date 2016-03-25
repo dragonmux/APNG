@@ -18,10 +18,10 @@ private:
 	uint32_t _height;
 
 public:
-	apng_t(stream_t &stream) noexcept;
+	apng_t(stream_t &stream);
 
 private:
-	void checkSig(stream_t &stream) noexcept;
+	void checkSig(stream_t &stream);
 };
 
 struct invalidPNG_t : public std::exception
