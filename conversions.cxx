@@ -31,3 +31,13 @@ colourType_t::colourType_t(const uint8_t type)
 	else
 		throw invalidPNG_t();
 }
+
+interlace_t::interlace_t(const uint8_t type)
+{
+	if (type == 0)
+		value = none;
+	else if (type == 1)
+		value = adam7;
+	else
+		throw invalidPNG_t();
+}
