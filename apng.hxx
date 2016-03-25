@@ -15,13 +15,13 @@ public:
 
 private:
 	_bitDepth_t value;
-	bitDepth_t(bitDepth_t &&) = delete;
-	bitDepth_t &operator =(const bitDepth_t &) = delete;
 
 public:
 	constexpr bitDepth_t() noexcept : value(bps8) { }
 	bitDepth_t(const uint8_t depth);
 	bitDepth_t(const bitDepth_t &depth) noexcept : value(depth.value) { }
+	bitDepth_t(bitDepth_t &&depth) noexcept : value(depth.value) { }
+	bitDepth_t &operator =(const bitDepth_t &depth) noexcept { value = depth.value; return *this; }
 	bitDepth_t &operator =(bitDepth_t &&depth) noexcept { value = depth.value; return *this; }
 	operator _bitDepth_t() const noexcept { return value; }
 };
@@ -33,13 +33,13 @@ public:
 
 private:
 	_colourType_t value;
-	colourType_t(colourType_t &&) = delete;
-	colourType_t &operator =(const colourType_t &) = delete;
 
 public:
 	constexpr colourType_t() noexcept : value(rgb) { }
 	colourType_t(const uint8_t type);
 	colourType_t(const colourType_t &type) noexcept : value(type.value) { }
+	colourType_t(colourType_t &&type) noexcept : value(type.value) { }
+	colourType_t &operator =(const colourType_t &type) noexcept { value = type.value; return *this; }
 	colourType_t &operator =(colourType_t &&type) noexcept { value = type.value; return *this; }
 	operator _colourType_t() const noexcept { return value; }
 };
@@ -51,13 +51,13 @@ public:
 
 private:
 	_interlace_t value;
-	interlace_t(interlace_t &&) = delete;
-	interlace_t &operator =(const interlace_t &) = delete;
 
 public:
 	constexpr interlace_t() noexcept : value(none) { }
 	interlace_t(const uint8_t type);
 	interlace_t(const interlace_t &type) noexcept : value(type.value) { }
+	interlace_t(interlace_t &&type) noexcept : value(type.value) { }
+	interlace_t &operator =(const interlace_t &type) noexcept { value = type.value; return *this; }
 	interlace_t &operator =(interlace_t &&type) noexcept { value = type.value; return *this; }
 	operator _interlace_t() const noexcept { return value; }
 };
