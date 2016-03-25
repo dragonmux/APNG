@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <exception>
 #include <array>
+#include <vector>
 #include "stream.hxx"
 
 struct bitDepth_t final
@@ -63,6 +64,27 @@ public:
 
 struct acTL_t final
 {
+private:
+	uint32_t _frames;
+	uint32_t _loops;
+
+	acTL_t(const acTL_t &) = delete;
+	acTL_t &operator =(const acTL_t &) = delete;
+
+public:
+	acTL_t() noexcept : _frames(1), _loops(0) { }
+	acTL_t(acTL_t &&acTL) noexcept : _frames(acTL._frames), _loops(acTL._loops) { }
+	acTL_t &operator =(acTL_t &&acTL) noexcept
+	{
+		_frames = acTL._frames;
+		_loops = acTL._frames;
+		return *this;
+	}
+
+	static acTL_t reinterpret(const uint8_t *const data) noexcept;
+
+	uint32_t frames() const noexcept { return _frames; }
+	uint32_t loops() const noexcept { return _loops; }
 };
 
 struct fcTL_t final
@@ -77,6 +99,7 @@ private:
 	bitDepth_t _bitDepth;
 	colourType_t _colourType;
 	interlace_t _interlacing;
+	acTL_t controlChunk;
 
 public:
 	apng_t(stream_t &stream);
