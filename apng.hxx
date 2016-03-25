@@ -152,6 +152,7 @@ public:
 
 private:
 	void checkSig(stream_t &stream);
+	void validateHeader();
 };
 
 struct invalidPNG_t : public std::exception

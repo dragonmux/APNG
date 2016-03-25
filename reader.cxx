@@ -66,6 +66,7 @@ apng_t::apng_t(stream_t &stream)
 	if (headerData[10] || headerData[11])
 		throw invalidPNG_t();
 	_interlacing = interlace_t(headerData[12]);
+	validateHeader();
 
 	while (!stream.atEOF())
 		chunks.emplace_back(chunk_t::loadChunk(stream));
@@ -93,9 +94,22 @@ void apng_t::checkSig(stream_t &stream)
 		throw invalidPNG_t();
 }
 
+void apng_t::validateHeader()
+{
+	if (!_width || !_height || (_width >> 31) || (_height >> 31))
+		throw invalidPNG_t();
+	if (_colourType == colourType_t::rgb || _colourType == colourType_t::greyscaleAlpha || _colourType == colourType_t::rgba)
+	{
+		if (_bitDepth != bitDepth_t::bps8 && _bitDepth != bitDepth_t::bps16)
+			throw invalidPNG_t();
+	}
+	else if (_colourType == colourType_t::palette && _bitDepth == bitDepth_t::bps16)
+		throw invalidPNG_t();
+}
+
 void acTL_t::check(const std::vector<chunk_t> &chunks)
 {
-	if (_frames != extract(chunks, isFCTL).size())
+	if (_frames != extract(chunks, isFCTL).size() && !_frames)
 		throw invalidPNG_t();
 }
 
