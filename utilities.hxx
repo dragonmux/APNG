@@ -33,7 +33,8 @@ uint16_t swap16(const uint16_t i) noexcept
 }
 void swap(uint16_t &i) noexcept { i = swap16(i); }
 
-template<typename T> bool contains(const std::vector<T> &list, bool condition(const T &)) noexcept
+template<typename T> bool contains(const std::vector<T> &list,
+	bool condition(const T &)) noexcept
 {
 	for (const T &item : list)
 	{
@@ -43,7 +44,8 @@ template<typename T> bool contains(const std::vector<T> &list, bool condition(co
 	return false;
 }
 
-template<typename T> std::vector<const T *> extract(const std::vector<T> &list, bool condition(const T &)) noexcept
+template<typename T> std::vector<const T *> extract(const std::vector<T> &list,
+	bool condition(const T &)) noexcept
 {
 	std::vector<const T *> result;
 	for (const T &item : list)
@@ -54,7 +56,8 @@ template<typename T> std::vector<const T *> extract(const std::vector<T> &list, 
 	return result;
 }
 
-template<typename T> const T *extractFirst(const std::vector<T> &list, bool condition(const T &)) noexcept
+template<typename T> const T *extractFirst(const std::vector<T> &list,
+	bool condition(const T &)) noexcept
 {
 	for (const T &item : list)
 	{
