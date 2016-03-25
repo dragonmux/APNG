@@ -40,9 +40,12 @@ private:
 
 	chunk_t() noexcept : _length(0), _chunkType{0, 0, 0, 0}, _chunkData(nullptr) { }
 	chunk_t(const chunk_t &) = delete;
+	chunk_t &operator =(const chunk_t &) = delete;
 
 public:
 	chunk_t(chunk_t &&chunk) noexcept : _length(chunk._length), _chunkType(chunk._chunkType), _chunkData(std::move(chunk._chunkData)) { }
+	chunk_t &operator =(chunk_t &&chunk) noexcept;
+	~chunk_t() noexcept { }
 	uint32_t length() const noexcept { return _length; }
 	const chunkType_t &type() const noexcept { return _chunkType; }
 	const uint8_t *data() const noexcept { return _chunkData.get(); }

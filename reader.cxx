@@ -6,6 +6,14 @@
 bool chunkType_t::operator ==(const uint8_t *const value) const noexcept { return memcmp(value, _type.data(), _type.size()) == 0; }
 bool chunkType_t::operator !=(const uint8_t *const value) const noexcept { return memcmp(value, _type.data(), _type.size()) != 0; }
 
+chunk_t &chunk_t::operator =(chunk_t &&chunk) noexcept
+{
+	_length = chunk._length;
+	_chunkType = chunk._chunkType;
+	_chunkData.swap(chunk._chunkData);
+	return *this;
+}
+
 chunk_t chunk_t::loadChunk(stream_t &stream) noexcept
 {
 	chunk_t chunk;
