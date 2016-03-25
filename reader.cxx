@@ -132,8 +132,8 @@ void checkACTL(const acTL_t &self, const std::vector<chunk_t> &chunks)
 acTL_t acTL_t::reinterpret(const uint8_t *const data) noexcept
 {
 	acTL_t chunk;
-	chunk._frames = reinterpret_cast<const uint32_t *const>(data)[0];
-	chunk._loops = reinterpret_cast<const uint32_t *const>(data)[1];
+	chunk._frames = swap32(reinterpret_cast<const uint32_t *const>(data)[0]);
+	chunk._loops = swap32(reinterpret_cast<const uint32_t *const>(data)[1]);
 	return chunk;
 }
 
