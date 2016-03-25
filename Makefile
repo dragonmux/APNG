@@ -26,21 +26,19 @@ all: $(DEPS) $(SO)
 .dep:
 	$(call run-cmd,install_dir,.dep)
 
-$(O): $(DEPS)
-
 $(SO): $(O)
 	$(call run-cmd,ccld,$(LFLAGS))
 	$(call debug-strip,$(SO))
 
-%.o: %.cpp
+%.o: %.cpp $(DEPS)
 	$(call makedep,$(CXX),$(DEPFLAGS))
 	$(call run-cmd,cxx,$(CFLAGS))
 
-%.o: %.cc
+%.o: %.cc $(DEPS)
 	$(call makedep,$(CXX),$(DEPFLAGS))
 	$(call run-cmd,cxx,$(CFLAGS))
 
-%.o: %.cxx
+%.o: %.cxx $(DEPS)
 	$(call makedep,$(CXX),$(DEPFLAGS))
 	$(call run-cmd,cxx,$(CFLAGS))
 
