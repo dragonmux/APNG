@@ -23,13 +23,14 @@ struct fileStream_t final : public stream_t
 {
 private:
 	int fd;
+	size_t length;
 	bool eof;
 
 public:
 	fileStream_t(const char *const fileName, const int32_t mode) noexcept;
 	~fileStream_t() noexcept;
 
-	bool read(void *const value, const size_t length) noexcept final override;
+	bool read(void *const value, const size_t valueLen) noexcept final override;
 	bool atEOF() const noexcept final override;
 };
 

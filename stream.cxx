@@ -9,23 +9,24 @@
 
 fileStream_t::fileStream_t(const char *const fileName, const int32_t mode) noexcept : fd(-1), eof(false)
 {
+	struct stat fileStat;
 	fd = open(fileName, mode);
-	if (fd == -1)
+	if (fd == -1 || fstat(fd, &fileStat) != 0)
 		throw std::system_error(errno, std::system_category());
+	length = fileStat.st_size;
 }
 
 fileStream_t::~fileStream_t() noexcept { close(fd); }
 
-bool fileStream_t::read(void *const value, const size_t length) noexcept
+bool fileStream_t::read(void *const value, const size_t valueLen) noexcept
 {
 	if (eof)
 		return false;
-	ssize_t ret = ::read(fd, value, length);
+	ssize_t ret = ::read(fd, value, valueLen);
 	if (ret < 0)
 		throw std::system_error(errno, std::system_category());
-	else if (ret == 0)
-		eof = true;
-	return size_t(ret) == length;
+	eof = length == size_t(lseek(fd, 0, SEEK_CUR));
+	return size_t(ret) == valueLen;
 }
 
 bool fileStream_t::atEOF() const noexcept
