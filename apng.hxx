@@ -6,7 +6,49 @@
 #include <exception>
 #include <array>
 #include <vector>
+#include <memory>
 #include "stream.hxx"
+
+struct chunkType_t final
+{
+private:
+	std::array<uint8_t, 4> _type;
+	chunkType_t() = delete;
+
+public:
+	template<typename... T, char [sizeof...(T) == 4] = nullptr> constexpr chunkType_t(T... value) noexcept :
+		_type{uint8_t(value)...} { }
+
+	bool operator ==(const chunkType_t &chunk) const noexcept { return _type == chunk._type; }
+	bool operator ==(const std::array<uint8_t, 4> &value) const noexcept { return _type == value; }
+	bool operator ==(const uint8_t *const value) const noexcept;
+
+	bool operator !=(const chunkType_t &chunk) const noexcept { return _type != chunk._type; }
+	bool operator !=(const std::array<uint8_t, 4> &value) const noexcept { return _type != value; }
+	bool operator !=(const uint8_t *const value) const noexcept;
+
+	std::array<uint8_t, 4> &type() noexcept { return _type; }
+	const std::array<uint8_t, 4> &type() const noexcept { return _type; }
+};
+
+struct chunk_t final
+{
+private:
+	uint32_t _length;
+	chunkType_t _chunkType;
+	std::unique_ptr<uint8_t[]> _chunkData;
+
+	chunk_t() noexcept : _length(0), _chunkType{0, 0, 0, 0}, _chunkData(nullptr) { }
+	chunk_t(const chunk_t &) = delete;
+
+public:
+	chunk_t(chunk_t &&chunk) noexcept : _length(chunk._length), _chunkType(chunk._chunkType), _chunkData(std::move(chunk._chunkData)) { }
+	uint32_t length() const noexcept { return _length; }
+	const chunkType_t &type() const noexcept { return _chunkType; }
+	const uint8_t *data() const noexcept { return _chunkData.get(); }
+
+	static chunk_t loadChunk(stream_t &stream) noexcept;
+};
 
 struct bitDepth_t final
 {
@@ -82,6 +124,7 @@ public:
 	}
 
 	static acTL_t reinterpret(const uint8_t *const data) noexcept;
+	void check(const std::vector<chunk_t> &chunks);
 
 	uint32_t frames() const noexcept { return _frames; }
 	uint32_t loops() const noexcept { return _loops; }
