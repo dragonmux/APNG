@@ -84,6 +84,8 @@ apng_t::apng_t(stream_t &stream)
 		throw invalidPNG_t();
 	controlChunk = acTL_t::reinterpret(chunkACTL->data());
 	controlChunk.check(chunks);
+
+	processDefaultFrame(chunks);
 }
 
 void apng_t::checkSig(stream_t &stream)
@@ -105,6 +107,23 @@ void apng_t::validateHeader()
 	}
 	else if (_colourType == colourType_t::palette && _bitDepth == bitDepth_t::bps16)
 		throw invalidPNG_t();
+}
+
+void apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks)
+{
+	auto dataChunks = extract(chunks, isIDAT);
+	size_t offs = 0, dataLength = 0;
+	for (const chunk_t *chunk : dataChunks)
+		dataLength += chunk->length();
+	std::unique_ptr<uint8_t[]> frameData(new uint8_t[dataLength]);
+	for (const chunk_t *chunk : dataChunks)
+	{
+		memcpy(frameData.get() + offs, chunk->data(), chunk->length());
+		offs += chunk->length();
+	}
+
+	// kick off inflate.
+	// and then populate a bitmap_t with the results.
 }
 
 void acTL_t::check(const std::vector<chunk_t> &chunks)

@@ -153,6 +153,7 @@ public:
 private:
 	void checkSig(stream_t &stream);
 	void validateHeader();
+	void processDefaultFrame(const std::vector<chunk_t> &chunks);
 };
 
 struct invalidPNG_t : public std::exception
