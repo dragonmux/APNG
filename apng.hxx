@@ -150,6 +150,12 @@ private:
 public:
 	apng_t(stream_t &stream);
 
+	uint32_t width() const noexcept { return _width; }
+	uint32_t height() const noexcept { return _height; }
+	bitDepth_t bitDepth() const noexcept { return _bitDepth; }
+	colourType_t colourType() const noexcept { return _colourType; }
+	interlace_t interlacing() const noexcept { return _interlacing; }
+
 private:
 	void checkSig(stream_t &stream);
 	void validateHeader();
