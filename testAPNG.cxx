@@ -15,6 +15,8 @@ public:
 		{
 			fileStream_t pngFile("loading_16.png", O_RDONLY | O_NOCTTY);
 			apng_t image(pngFile);
+			assertEqual(image.width(), 16);
+			assertEqual(image.height(), 16);
 		}
 		catch (std::system_error &error)
 		{
@@ -40,6 +42,8 @@ public:
 		try
 		{
 			apng_t image(pngFile);
+			assertEqual(image.width(), 16);
+			assertEqual(image.height(), 16);
 		}
 		catch (invalidPNG_t &error)
 		{
