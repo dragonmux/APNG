@@ -9,6 +9,20 @@
 #include <memory>
 #include "stream.hxx"
 
+#ifndef _MSC_VER
+	#if __GNUC__ >= 4
+		#define APNG_API	__attribute__((visibility("default")))
+	#else
+		#define APNG_API
+	#endif
+#else
+	#ifdef __APNG_lib__
+		#define APNG_API	__declspec(dllexport)
+	#else
+		#define APNG_API	__declspec(dllimport)
+	#endif
+#endif
+
 struct chunkType_t final
 {
 private:
@@ -53,7 +67,7 @@ public:
 	static chunk_t loadChunk(stream_t &stream) noexcept;
 };
 
-struct bitDepth_t final
+struct APNG_API bitDepth_t final
 {
 public:
 	enum _bitDepth_t { bps1, bps2, bps4, bps8, bps16 };
@@ -71,7 +85,7 @@ public:
 	operator _bitDepth_t() const noexcept { return value; }
 };
 
-struct colourType_t final
+struct APNG_API colourType_t final
 {
 public:
 	enum _colourType_t { greyscale, rgb, palette, greyscaleAlpha, rgba };
@@ -89,7 +103,7 @@ public:
 	operator _colourType_t() const noexcept { return value; }
 };
 
-struct interlace_t final
+struct APNG_API interlace_t final
 {
 public:
 	enum _interlace_t { none, adam7 };
@@ -137,7 +151,7 @@ struct fcTL_t final
 {
 };
 
-struct apng_t final
+struct APNG_API apng_t final
 {
 private:
 	uint32_t _width;
@@ -162,7 +176,7 @@ private:
 	void processDefaultFrame(const std::vector<chunk_t> &chunks);
 };
 
-struct invalidPNG_t : public std::exception
+struct APNG_API invalidPNG_t : public std::exception
 {
 public:
 	invalidPNG_t() noexcept;
