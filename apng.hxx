@@ -151,6 +151,10 @@ struct fcTL_t final
 {
 };
 
+struct APNG_API bitmap_t final
+{
+};
+
 struct APNG_API apng_t final
 {
 private:
@@ -160,6 +164,7 @@ private:
 	colourType_t _colourType;
 	interlace_t _interlacing;
 	acTL_t controlChunk;
+	std::unique_ptr<bitmap_t> _defaultFrame;
 
 public:
 	apng_t(stream_t &stream);
@@ -169,6 +174,7 @@ public:
 	bitDepth_t bitDepth() const noexcept { return _bitDepth; }
 	colourType_t colourType() const noexcept { return _colourType; }
 	interlace_t interlacing() const noexcept { return _interlacing; }
+	const bitmap_t *defaultFrame() const noexcept { return _defaultFrame.get(); }
 
 private:
 	void checkSig(stream_t &stream);
