@@ -141,6 +141,7 @@ void apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks)
 	}
 
 	memoryStream_t memoryStream(data.get(), dataLength);
+	zlibStream_t frameData(memoryStream, zlibStream_t::inflate);
 }
 
 void acTL_t::check(const std::vector<chunk_t> &chunks)
