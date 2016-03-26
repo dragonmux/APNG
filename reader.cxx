@@ -38,6 +38,7 @@ constexpr static const std::array<uint8_t, 8> pngSig =
 	{ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
 
 constexpr static const chunkType_t typeIHDR{'I', 'H', 'D', 'R'};
+constexpr static const chunkType_t typePLTE{'P', 'L', 'T', 'E'};
 constexpr static const chunkType_t typeACTL{'a', 'c', 'T', 'L'};
 constexpr static const chunkType_t typeIDAT{'I', 'D', 'A', 'T'};
 constexpr static const chunkType_t typeFCTL{'f', 'c', 'T', 'L'};
@@ -45,6 +46,7 @@ constexpr static const chunkType_t typeFDAT{'f', 'd', 'A', 'T'};
 constexpr static const chunkType_t typeIEND{'I', 'E', 'N', 'D'};
 
 bool isIHDR(const chunk_t &chunk) noexcept { return chunk.type() == typeIHDR; }
+bool isPLTE(const chunk_t &chunk) noexcept { return chunk.type() == typePLTE; }
 bool isACTL(const chunk_t &chunk) noexcept { return chunk.type() == typeACTL; }
 bool isIDAT(const chunk_t &chunk) noexcept { return chunk.type() == typeIDAT; }
 bool isFCTL(const chunk_t &chunk) noexcept { return chunk.type() == typeFCTL; }
@@ -70,6 +72,22 @@ apng_t::apng_t(stream_t &stream)
 
 	while (!stream.atEOF())
 		chunks.emplace_back(chunk_t::loadChunk(stream));
+
+	if (_colourType == colourType_t::palette || _colourType == colourType_t::rgb || _colourType == colourType_t::rgba)
+	{
+		auto palettes = extract(chunks, isPLTE);
+		if ((_colourType == colourType_t::palette && palettes.size() != 1) || palettes.size() > 1)
+			throw invalidPNG_t();
+		if (palettes.size())
+		{
+			const chunk_t *palette = palettes[0];
+			if ((palette->length() % 3) != 0)
+				throw invalidPNG_t();
+			// process palette.
+		}
+	}
+	else if (contains(chunks, isPLTE))
+		throw invalidPNG_t();
 
 	if (!contains(chunks, isIDAT))
 		throw invalidPNG_t();
