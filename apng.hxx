@@ -70,7 +70,7 @@ public:
 struct APNG_API bitDepth_t final
 {
 public:
-	enum _bitDepth_t { bps1, bps2, bps4, bps8, bps16 };
+	enum _bitDepth_t : uint8_t { bps1, bps2, bps4, bps8, bps16 };
 
 private:
 	_bitDepth_t value;
@@ -88,7 +88,7 @@ public:
 struct APNG_API colourType_t final
 {
 public:
-	enum _colourType_t { greyscale, rgb, palette, greyscaleAlpha, rgba };
+	enum _colourType_t : uint8_t { greyscale, rgb, palette, greyscaleAlpha, rgba };
 
 private:
 	_colourType_t value;
@@ -106,7 +106,7 @@ public:
 struct APNG_API interlace_t final
 {
 public:
-	enum _interlace_t { none, adam7 };
+	enum _interlace_t : uint8_t { none, adam7 };
 
 private:
 	_interlace_t value;
