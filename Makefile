@@ -11,13 +11,25 @@ LIBS =
 # $(LIBS_EXTRA) -pthread
 LFLAGS = $(OPTIM_FLAGS) -shared $(O) $(LIBS) -Wl,-soname,$@ -z defs -o $@
 
+CRUNCHMAKE = crunchMake $(shell pkg-config --cflags --libs crunch++)
+ifeq ($(BUILD_VERBOSE), 0)
+	CRUNCHMAKE += -q
+endif
+CRUNCH = crunch++
+
 PREFIX ?= /usr
 LIBDIR ?= $(PREFIX)/lib
 
 O = crc32.o stream.o conversions.o reader.o
 SO = libAPNG.so
+TESTS = testAPNG.so
 
 DEPS = .dep
+
+quiet_cmd_crunchMake = -n
+cmd_crunchMake = $(CRUNCHMAKE) $(2)
+quiet_cmd_crunch = -n
+cmd_crunch = $(CRUNCH) $(2)
 
 default: all
 
@@ -45,10 +57,21 @@ $(SO): $(O)
 #install:
 #	$(cal run-cmd,install_bin,$(EXE),$(PATH))
 
+test: $(O) $(TESTS)
+
+testAPNG.so: CRUNCHMAKE += $(addprefix -o,$(O))
+$(TESTS): $(subst .so,.cxx,$@)
+	$(call run-cmd,crunchMake,$(subst .so,.cxx,$@))
+
+check: test
+	$(call run-cmd,crunch,$(subst .so,,$(TESTS)))
+
 clean: $(DEPS)
 	$(call run-cmd,rm,APNG,$(O) $(SO))
+	$(call run-cmd,rm,tests,$(TESTS))
 	$(call run-cmd,rm,makedep,.dep/*.d)
 
 .PHONY: default all clean test check install
+.SUFFIXES: .cxx .so .o
 
 -include .dep/*.d

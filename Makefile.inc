@@ -65,10 +65,10 @@ define makedep
 		echo $(cmd_makedep); \
 	fi
 	@$(cmd_makedep)
-	@if [ "$($dir $<)" != "./" ]; then \
-		sed -i "s|^$(notdir $@):|$@:|" .dep/$*.d; \
-	fi
 endef
+#@if [ "$($dir $<)" != "./" ]; then \
+#	sed -i "s|^$(notdir $@):|$@:|" .dep/$*.d; \
+#fi
 
 define debug-strip
 	$(Q)if [ $(DEBUG) -eq 0 ]; then \
