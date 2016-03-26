@@ -133,15 +133,14 @@ void apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks)
 	size_t offs = 0, dataLength = 0;
 	for (const chunk_t *chunk : dataChunks)
 		dataLength += chunk->length();
-	std::unique_ptr<uint8_t[]> frameData(new uint8_t[dataLength]);
+	std::unique_ptr<uint8_t[]> data(new uint8_t[dataLength]);
 	for (const chunk_t *chunk : dataChunks)
 	{
-		memcpy(frameData.get() + offs, chunk->data(), chunk->length());
+		memcpy(data.get() + offs, chunk->data(), chunk->length());
 		offs += chunk->length();
 	}
 
-	// kick off inflate.
-	// and then populate a bitmap_t with the results.
+	memoryStream_t memoryStream(data.get(), dataLength);
 }
 
 void acTL_t::check(const std::vector<chunk_t> &chunks)

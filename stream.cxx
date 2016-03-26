@@ -7,7 +7,7 @@
 #include "internals.hxx"
 #include "stream.hxx"
 
-fileStream_t::fileStream_t(const char *const fileName, const int32_t mode) noexcept : fd(-1), eof(false)
+fileStream_t::fileStream_t(const char *const fileName, const int32_t mode) : fd(-1), eof(false)
 {
 	struct stat fileStat;
 	fd = open(fileName, mode);
@@ -18,7 +18,7 @@ fileStream_t::fileStream_t(const char *const fileName, const int32_t mode) noexc
 
 fileStream_t::~fileStream_t() noexcept { close(fd); }
 
-bool fileStream_t::read(void *const value, const size_t valueLen) noexcept
+bool fileStream_t::read(void *const value, const size_t valueLen, size_t &actualLen)
 {
 	if (eof)
 		return false;
@@ -26,21 +26,23 @@ bool fileStream_t::read(void *const value, const size_t valueLen) noexcept
 	if (ret < 0)
 		throw std::system_error(errno, std::system_category());
 	eof = length == size_t(lseek(fd, 0, SEEK_CUR));
-	return size_t(ret) == valueLen;
+	actualLen = size_t(ret);
+	return true;
 }
 
 bool fileStream_t::atEOF() const noexcept
 	{ return eof; }
 
-memoryStream_t::memoryStream_t(void *const file, const size_t fileLength) noexcept :
-	memory(file), length(fileLength) { }
+memoryStream_t::memoryStream_t(void *const stream, const size_t streamLength) noexcept :
+	memory(static_cast<char *const>(stream)), length(streamLength), pos(0) { }
 
-bool memoryStream_t::read(void *const value, const size_t valueLen) noexcept
+bool memoryStream_t::read(void *const value, const size_t valueLen, size_t &actualLen) noexcept
 {
-	if ((pos + valueLen) < pos || (pos + valueLen) > length)
+	if ((pos + valueLen) < pos)
 		return false;
-	memcpy(value, memory, valueLen);
-	pos += valueLen;
+	actualLen = (pos + valueLen) > length ? length - pos : valueLen;
+	memcpy(value, memory + pos, actualLen);
+	pos += actualLen;
 	return true;
 }
 
