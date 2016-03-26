@@ -54,7 +54,7 @@ public:
 	void registerTests() final override
 	{
 		CXX_TEST(testFileStream)
-		//CXX_TEST(testMemoryStream)
+		CXX_TEST(testMemoryStream)
 	}
 };
 
