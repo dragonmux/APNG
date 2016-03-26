@@ -1,14 +1,13 @@
 include Makefile.inc
 
-PKG_CONFIG_PKGS =
+PKG_CONFIG_PKGS = zlib
 CFLAGS_EXTRA = $(shell pkg-config --cflags $(PKG_CONFIG_PKGS))
 LIBS_EXTRA = $(shell pkg-config --libs $(PKG_CONFIG_PKGS))
-DEFS = -Wall -Wextra -pedantic -std=c++11
+DEFS = -Wall -Wextra -pedantic -std=c++11 $(CFLAGS_EXTRA)
 CFLAGS = $(OPTIM_FLAGS) -c $(DEFS) -o $@ $<
-# $(CFLAGS_EXTRA)
 DEPFLAGS = $(OPTIM_FLAGS) -E -MM $(DEFS) -o .dep/$*.d $<
-LIBS =
-# $(LIBS_EXTRA) -pthread
+LIBS = $(LIBS_EXTRA)
+# -pthread
 LFLAGS = $(OPTIM_FLAGS) -shared $(O) $(LIBS) -Wl,-soname,$@ -z defs -o $@
 
 CRUNCHMAKE = crunchMake $(shell pkg-config --cflags --libs crunch++)
