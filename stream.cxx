@@ -48,3 +48,61 @@ bool memoryStream_t::read(void *const value, const size_t valueLen, size_t &actu
 
 bool memoryStream_t::atEOF() const noexcept
 	{ return pos == length; }
+
+zlibStream_t::zlibStream_t(stream_t &sourceStream, const mode_t streamMode) :
+	source(sourceStream), mode(streamMode), bufferUsed(0), bufferAvail(0), eos(false)
+{
+	if (mode == inflate)
+	{
+		if (inflateInit(&stream) != Z_OK)
+			throw zlibError_t();
+	}
+}
+
+zlibStream_t::~zlibStream_t() noexcept
+{
+	if (mode == inflate)
+		inflateEnd(&stream);
+}
+
+bool zlibStream_t::read(void *const value, const size_t valueLen, size_t &valueRead)
+{
+	if (mode != inflate || eos)
+		return false;
+
+	while (valueRead < valueLen && !eos)
+	{
+		if (!stream.avail_in && bufferUsed == bufferAvail && !eos)
+		{
+			size_t amount = 0;
+			if (!source.read(bufferIn, chunkLen, amount))
+				return false;
+			stream.next_in = bufferIn;
+			stream.avail_in = amount;
+			bufferAvail = 0;
+		}
+
+		if (!bufferAvail || bufferUsed == bufferAvail)
+		{
+			stream.next_out = bufferOut;
+			stream.avail_out = chunkLen;
+			const int ret = ::inflate(&stream, Z_NO_FLUSH);
+			bufferAvail = chunkLen - stream.avail_out;
+			bufferUsed = 0;
+			if (ret == Z_STREAM_ERROR || ret == Z_NEED_DICT)
+				return false;
+			else if (ret == Z_STREAM_END)
+				eos = true;
+		}
+
+		const size_t blockLen = (valueRead + bufferAvail - bufferUsed) < valueLen ? (bufferAvail - bufferUsed) : (valueLen - valueRead);
+		memcpy(static_cast<char *const>(value) + valueRead, bufferOut + bufferUsed, blockLen);
+		valueRead += blockLen;
+		bufferUsed += blockLen;
+	}
+
+	return true;
+}
+
+bool zlibStream_t::atEOF() const noexcept
+	{ return eos; }

@@ -10,7 +10,7 @@ LIBS = $(LIBS_EXTRA)
 # -pthread
 LFLAGS = $(OPTIM_FLAGS) -shared $(O) $(LIBS) -Wl,-soname,$@ -z defs -o $@
 
-CRUNCHMAKE = crunchMake $(shell pkg-config --cflags --libs crunch++)
+CRUNCHMAKE = crunchMake $(shell pkg-config --cflags --libs crunch++ zlib)
 ifeq ($(BUILD_VERBOSE), 0)
 	CRUNCHMAKE += -q
 endif

@@ -1,7 +1,12 @@
 #ifndef STREAM__HXX
 #define STREAM__HXX
 
+#include <zlib.h>
+
+constexpr uint32_t operator ""_KiB(const unsigned long long value) noexcept { return uint32_t(value) * 1024; }
+
 struct notImplemented_t : public std::exception { };
+struct zlibError_t : public std::exception { };
 
 struct stream_t
 {
@@ -53,6 +58,30 @@ public:
 	memoryStream_t(void *const stream, const size_t streamLength) noexcept;
 
 	bool read(void *const value, const size_t valueLen, size_t &actualLen) noexcept final override;
+	bool atEOF() const noexcept final override;
+};
+
+struct zlibStream_t : public stream_t
+{
+public:
+	enum mode_t : uint8_t { inflate, deflate };
+
+private:
+	constexpr static const uint32_t chunkLen = 8_KiB;
+	stream_t &source;
+	const mode_t mode;
+	z_stream stream;
+	uint32_t bufferUsed;
+	uint32_t bufferAvail;
+	uint8_t bufferIn[chunkLen];
+	uint8_t bufferOut[chunkLen];
+	bool eos;
+
+public:
+	zlibStream_t(stream_t &sourceStream, const mode_t streamMode);
+	~zlibStream_t() noexcept;
+
+	bool read(void *const value, const size_t valueLen, size_t &actualLen) final override;
 	bool atEOF() const noexcept final override;
 };
 
