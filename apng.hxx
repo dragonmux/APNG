@@ -201,6 +201,8 @@ public:
 private:
 	void checkSig(stream_t &stream);
 	void validateHeader();
+	pixelFormat_t pixelFormat();
+
 	void processDefaultFrame(const std::vector<chunk_t> &chunks);
 };
 

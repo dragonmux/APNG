@@ -150,6 +150,34 @@ void apng_t::validateHeader()
 		throw invalidPNG_t();
 }
 
+pixelFormat_t apng_t::pixelFormat()
+{
+	if (_colourType == colourType_t::rgb)
+	{
+		if (_bitDepth == bitDepth_t::bps8)
+			return pixelFormat_t::format24bppRGB;
+		else if (_bitDepth == bitDepth_t::bps16)
+			return pixelFormat_t::format48bppRGB;
+	}
+	else if (_colourType == colourType_t::rgba)
+	{
+		if (_bitDepth == bitDepth_t::bps8)
+			return pixelFormat_t::format32bppRGBA;
+		else if (_bitDepth == bitDepth_t::bps16)
+			return pixelFormat_t::format64bppRGBA;
+	}
+	else if (_colourType == colourType_t::palette)
+		return pixelFormat_t::format24bppRGB;
+	else if (_colourType == colourType_t::greyscale || _colourType == colourType_t::greyscaleAlpha)
+	{
+		if (_bitDepth == bitDepth_t::bps8 || _bitDepth == bitDepth_t::bps4 || _bitDepth == bitDepth_t::bps2 || _bitDepth == bitDepth_t::bps1)
+			return pixelFormat_t::format8bppGrey;
+		else if (_bitDepth == bitDepth_t::bps16)
+			return pixelFormat_t::format16bppGrey;
+	}
+	throw invalidPNG_t();
+}
+
 void apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks)
 {
 	auto dataChunks = extract(chunks, isIDAT);
@@ -165,6 +193,7 @@ void apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks)
 
 	memoryStream_t memoryStream(data.get(), dataLength);
 	zlibStream_t frameData(memoryStream, zlibStream_t::inflate);
+	_defaultFrame.reset(new bitmap_t(_width, _height, pixelFormat()));
 }
 
 void acTL_t::check(const std::vector<chunk_t> &chunks)
