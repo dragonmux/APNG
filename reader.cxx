@@ -112,9 +112,6 @@ apng_t::apng_t(stream_t &stream)
 	else if (contains(chunks, isPLTE))
 		throw invalidPNG_t();
 
-	if (!contains(chunks, isIDAT))
-		throw invalidPNG_t();
-
 	const chunk_t &end = chunks.back();
 	chunks.pop_back();
 	if (!isIEND(end) || end.length() != 0)
@@ -126,6 +123,8 @@ apng_t::apng_t(stream_t &stream)
 	controlChunk = acTL_t::reinterpret(chunkACTL->data());
 	controlChunk.check(chunks);
 
+	if (!contains(chunks, isIDAT) || isAfter(chunkACTL, extractFirst(chunks, isIDAT)))
+		throw invalidPNG_t();
 	processDefaultFrame(chunks);
 }
 

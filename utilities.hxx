@@ -69,6 +69,12 @@ template<typename T> const T *extractFirst(const std::vector<T> &list,
 	return nullptr;
 }
 
+template<typename T> bool isBefore(const T *a, const T *b) noexcept
+	{ return a < b; }
+
+template<typename T> bool isAfter(const T *a, const T *b) noexcept
+	{ return a > b; }
+
 template<typename T> struct pngRGB_t
 {
 	T r;
