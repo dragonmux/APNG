@@ -151,8 +151,30 @@ struct fcTL_t final
 {
 };
 
+enum class pixelFormat_t : uint8_t
+{
+	format8bppGrey,
+	format16bppGrey,
+	format24bppRGB,
+	format32bppRGBA,
+	format48bppRGB,
+	format64bppRGBA
+};
+
 struct APNG_API bitmap_t final
 {
+private:
+	std::unique_ptr<uint8_t[]> _data;
+	const uint32_t _width, _height;
+	const pixelFormat_t _format;
+
+public:
+	bitmap_t(const uint32_t width, const uint32_t height, const pixelFormat_t format);
+	const uint8_t *data() const noexcept { return _data.get(); }
+	uint8_t *data() noexcept { return _data.get(); }
+	uint32_t width() const noexcept { return _width; }
+	uint32_t height() const noexcept { return _height; }
+	pixelFormat_t format() const noexcept { return _format; }
 };
 
 struct APNG_API apng_t final

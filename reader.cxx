@@ -52,6 +52,29 @@ bool isIDAT(const chunk_t &chunk) noexcept { return chunk.type() == typeIDAT; }
 bool isFCTL(const chunk_t &chunk) noexcept { return chunk.type() == typeFCTL; }
 bool isIEND(const chunk_t &chunk) noexcept { return chunk.type() == typeIEND; }
 
+bitmap_t::bitmap_t(const uint32_t width, const uint32_t height, const pixelFormat_t format) :
+	_width(width), _height(height), _format(format)
+{
+	uint8_t bytes;
+	if (_format == pixelFormat_t::format8bppGrey)
+		bytes = 1;
+	else if (_format == pixelFormat_t::format16bppGrey)
+		bytes = 2;
+	else if (_format == pixelFormat_t::format24bppRGB)
+		bytes = 3;
+	else if (_format == pixelFormat_t::format32bppRGBA)
+		bytes = 4;
+	else if (_format == pixelFormat_t::format48bppRGB)
+		bytes = 6;
+	else if (_format == pixelFormat_t::format64bppRGBA)
+		bytes = 8;
+	else
+		throw invalidPNG_t();
+	const size_t length = width * height * bytes;
+	_data.reset(new uint8_t[length]);
+	memset(_data.get(), 0, length);
+}
+
 apng_t::apng_t(stream_t &stream)
 {
 	std::vector<chunk_t> chunks;
