@@ -203,6 +203,7 @@ private:
 	void validateHeader();
 	pixelFormat_t pixelFormat();
 
+	bool processFrame(stream_t &stream, bitmap_t &frame);
 	void processDefaultFrame(const std::vector<chunk_t> &chunks);
 };
 

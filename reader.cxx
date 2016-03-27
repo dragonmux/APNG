@@ -178,6 +178,25 @@ pixelFormat_t apng_t::pixelFormat()
 	throw invalidPNG_t();
 }
 
+bool apng_t::processFrame(stream_t &stream, bitmap_t &frame)
+{
+	void *const data = frame.data();
+	bitmapRegion_t region(frame.width(), frame.height());
+	switch (frame.format())
+	{
+		case pixelFormat_t::format24bppRGB:
+			return copyFrame<pngRGB8_t, readRGB>(stream, data, region);
+		case pixelFormat_t::format48bppRGB:
+			return copyFrame<pngRGB16_t, readRGB>(stream, data, region);
+		case pixelFormat_t::format32bppRGBA:
+			return copyFrame<pngRGBA8_t, readRGBA>(stream, data, region);
+		case pixelFormat_t::format64bppRGBA:
+			return copyFrame<pngRGBA16_t, readRGBA>(stream, data, region);
+		default:
+			return false;
+	}
+}
+
 void apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks)
 {
 	auto dataChunks = extract(chunks, isIDAT);
@@ -194,6 +213,8 @@ void apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks)
 	memoryStream_t memoryStream(data.get(), dataLength);
 	zlibStream_t frameData(memoryStream, zlibStream_t::inflate);
 	_defaultFrame.reset(new bitmap_t(_width, _height, pixelFormat()));
+	if (!processFrame(frameData, *_defaultFrame))
+		throw invalidPNG_t();
 }
 
 void acTL_t::check(const std::vector<chunk_t> &chunks)
