@@ -5,6 +5,7 @@
 #include <memory>
 #include <system_error>
 #include "apng.hxx"
+#include "crc32.hxx"
 
 class apngTests final : public testsuit
 {
@@ -58,8 +59,37 @@ public:
 	}
 };
 
+class crc32Tests final :  public testsuit
+{
+private:
+	static const std::pair<std::array<uint8_t, 17>, uint32_t> testData1;
+
+public:
+	void testCRC32() noexcept
+	{
+		uint32_t crcCalc;
+		crc32_t::crc(crcCalc = 0, testData1.first);
+		assertEqual(int32_t(crcCalc), int32_t(testData1.second));
+	}
+
+	void registerTests() final override
+	{
+		CXX_TEST(testCRC32)
+	}
+};
+
+const std::pair<std::array<uint8_t, 17>, uint32_t> crc32Tests::testData1
+{
+	{
+		0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x02, 0x78,
+		0x00, 0x00, 0x02, 0xF2, 0x08, 0x02, 0x00, 0x00,
+		0x00
+	},
+	0xC6DE3ED3
+};
+
 CRUNCH_API void registerCXXTests() noexcept;
 void registerCXXTests() noexcept
 {
-	registerTestClasses<apngTests>();
+	registerTestClasses<apngTests, crc32Tests>();
 }
