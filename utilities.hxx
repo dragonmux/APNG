@@ -94,11 +94,17 @@ template<typename T, bool copyFunc(stream_t &, T &)> bool copyFrame(stream_t &st
 	const uint32_t height = frame.height();
 	for (uint32_t y = 0; y < height; ++y)
 	{
+		uint8_t filter;
+		if (!stream.read(filter))
+			return false;
+
 		for (uint32_t x = 0; x < width; ++x)
 		{
 			if (!copyFunc(stream, data[x + (y * width)]))
 				return false;
 		}
+
+		// TODO: Make me properly handle the scanline filtering issue.
 	}
 	return true;
 }
