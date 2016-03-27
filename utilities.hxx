@@ -80,7 +80,7 @@ template<typename T> struct pngRGBA_t final : public pngRGB_t<T>
 using pngRGB8_t = pngRGB_t<uint8_t>;
 using pngRGB16_t = pngRGB_t<uint16_t>;
 using pngRGBA8_t = pngRGBA_t<uint8_t>;
-using pngRGB16_t = pngRGB_t<uint16_t>;
+using pngRGBA16_t = pngRGBA_t<uint16_t>;
 
 template<typename T> bool readRGB(stream_t &stream, T &pixel) noexcept
 	{ return stream.read(pixel.r) && stream.read(pixel.g) && stream.read(pixel.b); }

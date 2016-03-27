@@ -68,10 +68,10 @@ zlibStream_t::~zlibStream_t() noexcept
 
 bool zlibStream_t::read(void *const value, const size_t valueLen, size_t &valueRead)
 {
-	if (mode != inflate || eos)
+	if (mode != inflate || (eos && bufferUsed == bufferAvail))
 		return false;
 
-	while (valueRead < valueLen && !eos)
+	while (valueRead < valueLen && !(eos && bufferUsed == bufferAvail))
 	{
 		if (!stream.avail_in && bufferUsed == bufferAvail && !eos)
 		{
