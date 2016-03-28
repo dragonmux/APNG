@@ -187,7 +187,9 @@ private:
 	colourType_t _colourType;
 	interlace_t _interlacing;
 	acTL_t controlChunk;
-	std::unique_ptr<bitmap_t> _defaultFrame;
+	bitmap_t *_defaultFrame;
+	std::vector<std::unique_ptr<bitmap_t>> _frames;
+	std::unique_ptr<bitmap_t> defaultFrameStorage;
 
 public:
 	apng_t(stream_t &stream);
@@ -197,7 +199,7 @@ public:
 	bitDepth_t bitDepth() const noexcept { return _bitDepth; }
 	colourType_t colourType() const noexcept { return _colourType; }
 	interlace_t interlacing() const noexcept { return _interlacing; }
-	const bitmap_t *defaultFrame() const noexcept { return _defaultFrame.get(); }
+	const bitmap_t *defaultFrame() const noexcept { return _defaultFrame; }
 	pixelFormat_t pixelFormat() const;
 
 private:
@@ -205,7 +207,7 @@ private:
 	void validateHeader();
 
 	bool processFrame(stream_t &stream, bitmap_t &frame);
-	void processDefaultFrame(const std::vector<chunk_t> &chunks);
+	uint32_t processDefaultFrame(const std::vector<chunk_t> &chunks, const bool isSequenceFrame);
 };
 
 struct APNG_API invalidPNG_t : public std::exception

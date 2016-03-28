@@ -125,7 +125,7 @@ apng_t::apng_t(stream_t &stream)
 
 	if (!contains(chunks, isIDAT) || isAfter(chunkACTL, extractFirst(chunks, isIDAT)))
 		throw invalidPNG_t();
-	processDefaultFrame(chunks);
+	uint32_t i = processDefaultFrame(chunks, isBefore(extractFirst(chunks, isIDAT), extractFirst(chunks, isFCTL)));
 }
 
 void apng_t::checkSig(stream_t &stream)
@@ -213,7 +213,7 @@ bool apng_t::processFrame(stream_t &stream, bitmap_t &frame)
 	return false;
 }
 
-void apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks)
+uint32_t apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks, const bool isSequenceFrame)
 {
 	auto dataChunks = extract(chunks, isIDAT);
 	size_t offs = 0, dataLength = 0;
@@ -228,9 +228,16 @@ void apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks)
 
 	memoryStream_t memoryStream(data.get(), dataLength);
 	zlibStream_t frameData(memoryStream, zlibStream_t::inflate);
-	_defaultFrame.reset(new bitmap_t(_width, _height, pixelFormat()));
+	_defaultFrame = new bitmap_t(_width, _height, pixelFormat());
 	if (!processFrame(frameData, *_defaultFrame))
 		throw invalidPNG_t();
+
+	if (isSequenceFrame)
+		_frames.emplace_back(_defaultFrame);
+	else
+		defaultFrameStorage.reset(_defaultFrame);
+	// Return what the first unread animation frame index is.
+	return isSequenceFrame ? 1 : 0;
 }
 
 void acTL_t::check(const std::vector<chunk_t> &chunks)
