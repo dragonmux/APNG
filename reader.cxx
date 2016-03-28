@@ -260,6 +260,32 @@ acTL_t acTL_t::reinterpret(const chunk_t &chunk)
 	return acTL_t(reinterpret_cast<const uint32_t *const>(chunk.data()));
 }
 
+fcTL_t::fcTL_t(const uint8_t *const data) noexcept
+{
+	const uint32_t *const data32 = reinterpret_cast<const uint32_t *const>(data);
+	const uint16_t *const data16 = reinterpret_cast<const uint16_t *const>(data);
+	_sequenceNum = swap32(data32[0]);
+	_width = swap32(data32[1]);
+	_height = swap32(data32[2]);
+	_xOffset = swap32(data32[3]);
+	_yOffset = swap32(data32[4]);
+	_delayN = swap16(data16[10]);
+	_delayD = swap16(data16[11]);
+}
+
+fcTL_t fcTL_t::reinterpret(const chunk_t &chunk)
+{
+	if (chunk.length() != 26)
+		throw invalidPNG_t();
+	return fcTL_t(chunk.data());
+}
+
+void fcTL_t::check(const uint32_t pngWidth, const uint32_t pngHeight)
+{
+	if (!_width || !_height || (_xOffset + _width) > pngWidth || (_yOffset + _height) > pngHeight)
+		throw invalidPNG_t();
+}
+
 invalidPNG_t::invalidPNG_t() noexcept { }
 
 const char *invalidPNG_t::what() const noexcept

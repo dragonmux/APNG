@@ -150,6 +150,28 @@ public:
 
 struct fcTL_t final
 {
+private:
+	uint32_t _sequenceNum;
+	uint32_t _width;
+	uint32_t _height;
+	uint32_t _xOffset;
+	uint32_t _yOffset;
+	uint16_t _delayN;
+	uint16_t _delayD;
+//	disposeOp_t _disposeOp;
+//	blendOp_t _blendOp;
+
+	fcTL_t(const uint8_t *const data) noexcept;
+	fcTL_t(const fcTL_t &) = delete;
+	fcTL_t &operator =(const fcTL_t &) = delete;
+
+public:
+	fcTL_t(fcTL_t &&fcTL) noexcept : _sequenceNum(fcTL._sequenceNum), _width(fcTL._width), _height(fcTL._height),
+		_xOffset(fcTL._xOffset), _yOffset(fcTL._yOffset), _delayN(fcTL._delayN), _delayD(fcTL._delayD)/*,
+		_disposeOp(fcTL._disposeOp), _blendOp(fcTL._blendOp)*/ { }
+
+	static fcTL_t reinterpret(const chunk_t &chunk);
+	void check(const uint32_t pngWidth, const uint32_t pngHeight);
 };
 
 enum class pixelFormat_t : uint8_t
