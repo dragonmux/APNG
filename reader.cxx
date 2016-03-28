@@ -295,7 +295,7 @@ void fcTL_t::check(const uint32_t pngWidth, const uint32_t pngHeight, const bool
 		throw invalidPNG_t();
 	if (first)
 	{
-		if (_width != pngWidth || _height != pngHeight || !_xOffset || !_yOffset)
+		if (_width != pngWidth || _height != pngHeight || !_xOffset || !_yOffset || !_sequenceNum)
 			throw invalidPNG_t();
 		if (_disposeOp = disposeOp_t::previous)
 			_disposeOp = disposeOp_t::background;
