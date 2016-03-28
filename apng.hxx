@@ -7,7 +7,6 @@
 #include <array>
 #include <vector>
 #include <memory>
-#include "stream.hxx"
 
 #ifndef _MSC_VER
 	#if __GNUC__ >= 4
@@ -22,6 +21,8 @@
 		#define APNG_API	__declspec(dllimport)
 	#endif
 #endif
+
+#include "stream.hxx"
 
 struct chunkType_t final
 {
@@ -197,11 +198,11 @@ public:
 	colourType_t colourType() const noexcept { return _colourType; }
 	interlace_t interlacing() const noexcept { return _interlacing; }
 	const bitmap_t *defaultFrame() const noexcept { return _defaultFrame.get(); }
+	pixelFormat_t pixelFormat() const;
 
 private:
 	void checkSig(stream_t &stream);
 	void validateHeader();
-	pixelFormat_t pixelFormat();
 
 	bool processFrame(stream_t &stream, bitmap_t &frame);
 	void processDefaultFrame(const std::vector<chunk_t> &chunks);
