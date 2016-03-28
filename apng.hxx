@@ -169,6 +169,18 @@ public:
 	fcTL_t(fcTL_t &&fcTL) noexcept : _sequenceNum(fcTL._sequenceNum), _width(fcTL._width), _height(fcTL._height),
 		_xOffset(fcTL._xOffset), _yOffset(fcTL._yOffset), _delayN(fcTL._delayN), _delayD(fcTL._delayD)/*,
 		_disposeOp(fcTL._disposeOp), _blendOp(fcTL._blendOp)*/ { }
+	void operator =(fcTL_t &&fcTL) noexcept
+	{
+		_sequenceNum = fcTL._sequenceNum;
+		_width = fcTL._width;
+		_height = fcTL._height;
+		_xOffset = fcTL._xOffset;
+		_yOffset = fcTL._yOffset;
+		_delayN = fcTL._delayN;
+		_delayD = fcTL._delayD;
+		/*_disposeOp = fcTL._disposeOp;
+		_blendOp = fcTL._blendOp;*/
+	}
 
 	static fcTL_t reinterpret(const chunk_t &chunk);
 	void check(const uint32_t pngWidth, const uint32_t pngHeight);
