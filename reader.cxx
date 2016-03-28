@@ -125,7 +125,8 @@ apng_t::apng_t(stream_t &stream)
 
 	if (!contains(chunks, isIDAT) || isAfter(chunkACTL, extractFirst(chunks, isIDAT)) || !contains(chunks, isFCTL))
 		throw invalidPNG_t();
-	uint32_t i = processDefaultFrame(chunks, isBefore(extractFirst(chunks, isIDAT), extractFirst(chunks, isFCTL)));
+	auto frameControlChunks = extract(chunks, isFCTL);
+	uint32_t i = processDefaultFrame(chunks, isBefore(extractFirst(chunks, isIDAT), frameControlChunks[0]));
 }
 
 void apng_t::checkSig(stream_t &stream)
