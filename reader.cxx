@@ -149,7 +149,7 @@ void apng_t::validateHeader()
 		throw invalidPNG_t();
 }
 
-pixelFormat_t apng_t::pixelFormat()
+pixelFormat_t apng_t::pixelFormat() const
 {
 	if (_colourType == colourType_t::rgb)
 	{
