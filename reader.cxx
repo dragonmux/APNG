@@ -117,7 +117,7 @@ apng_t::apng_t(stream_t &stream)
 	if (!isIEND(end) || end.length() != 0)
 		throw invalidPNG_t();
 
-	const chunk_t *chunkACTL = extractFirst(chunks, isACTL);
+	const chunk_t *const chunkACTL = extractFirst(chunks, isACTL);
 	if (!chunkACTL || extract(chunks, isACTL).size() != 1 || chunkACTL->length() != 8)
 		throw invalidPNG_t();
 	controlChunk = acTL_t::reinterpret(chunkACTL->data());
