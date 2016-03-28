@@ -53,3 +53,13 @@ disposeOp_t::disposeOp_t(const uint8_t op)
 	else
 		throw invalidPNG_t();
 }
+
+blendOp_t::blendOp_t(const uint8_t op)
+{
+	if (op == 0)
+		value = source;
+	else if (op == 1)
+		value = over;
+	else
+		throw invalidPNG_t();
+}

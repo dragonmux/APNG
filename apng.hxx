@@ -140,6 +140,24 @@ public:
 	operator _disposeOp_t() const noexcept { return value; }
 };
 
+struct APNG_API blendOp_t final
+{
+public:
+	enum _blendOp_t { source, over };
+
+private:
+	_blendOp_t value;
+
+public:
+	constexpr blendOp_t() noexcept : value(source) { }
+	blendOp_t(const uint8_t depth);
+	blendOp_t(const blendOp_t &depth) noexcept : value(depth.value) { }
+	blendOp_t(blendOp_t &&depth) noexcept : value(depth.value) { }
+	blendOp_t &operator =(const blendOp_t &depth) noexcept { value = depth.value; return *this; }
+	blendOp_t &operator =(blendOp_t &&depth) noexcept { value = depth.value; return *this; }
+	operator _blendOp_t() const noexcept { return value; }
+};
+
 struct acTL_t final
 {
 private:
@@ -177,7 +195,7 @@ private:
 	uint16_t _delayN;
 	uint16_t _delayD;
 	disposeOp_t _disposeOp;
-//	blendOp_t _blendOp;
+	blendOp_t _blendOp;
 
 	fcTL_t(const uint8_t *const data) noexcept;
 	fcTL_t(const fcTL_t &) = delete;
@@ -186,7 +204,7 @@ private:
 public:
 	fcTL_t(fcTL_t &&fcTL) noexcept : _sequenceNum(fcTL._sequenceNum), _width(fcTL._width), _height(fcTL._height),
 		_xOffset(fcTL._xOffset), _yOffset(fcTL._yOffset), _delayN(fcTL._delayN), _delayD(fcTL._delayD),
-		_disposeOp(fcTL._disposeOp)/*, _blendOp(fcTL._blendOp)*/ { }
+		_disposeOp(fcTL._disposeOp), _blendOp(fcTL._blendOp) { }
 	void operator =(fcTL_t &&fcTL) noexcept
 	{
 		_sequenceNum = fcTL._sequenceNum;
@@ -197,7 +215,7 @@ public:
 		_delayN = fcTL._delayN;
 		_delayD = fcTL._delayD;
 		_disposeOp = fcTL._disposeOp;
-		//_blendOp = fcTL._blendOp;
+		_blendOp = fcTL._blendOp;
 	}
 
 	static fcTL_t reinterpret(const chunk_t &chunk);

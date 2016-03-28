@@ -280,6 +280,7 @@ fcTL_t::fcTL_t(const uint8_t *const data) noexcept
 	_delayN = swap16(data16[10]);
 	_delayD = swap16(data16[11]);
 	_disposeOp = disposeOp_t(data[24]);
+	_blendOp = blendOp_t(data[25]);
 }
 
 fcTL_t fcTL_t::reinterpret(const chunk_t &chunk)
