@@ -9,8 +9,8 @@
 
 constexpr uint32_t operator ""_KiB(const unsigned long long value) noexcept { return uint32_t(value) * 1024; }
 
-struct notImplemented_t : public std::exception { };
-struct zlibError_t : public std::exception { };
+struct APNG_API notImplemented_t : public std::exception { };
+struct APNG_API zlibError_t : public std::exception { };
 
 struct stream_t
 {
@@ -36,7 +36,7 @@ public:
 	virtual bool atEOF() const { throw notImplemented_t(); }
 };
 
-struct fileStream_t final : public stream_t
+struct APNG_API fileStream_t final : public stream_t
 {
 private:
 	int fd;
@@ -51,7 +51,7 @@ public:
 	bool atEOF() const noexcept final override;
 };
 
-struct memoryStream_t : public stream_t
+struct APNG_API memoryStream_t : public stream_t
 {
 private:
 	char *const memory;
@@ -65,7 +65,7 @@ public:
 	bool atEOF() const noexcept final override;
 };
 
-struct zlibStream_t : public stream_t
+struct APNG_API zlibStream_t : public stream_t
 {
 public:
 	enum mode_t : uint8_t { inflate, deflate };
