@@ -234,9 +234,10 @@ uint32_t apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks, const b
 	_defaultFrame = new bitmap_t(_width, _height, pixelFormat());
 	if (isSequenceFrame)
 	{
+		std::unique_ptr<bitmap_t> frame(_defaultFrame);
 		fcTL_t fcTL = fcTL_t::reinterpret(*controlChunk);
 		fcTL.check(_width, _height, true);
-		_frames.emplace_back(_defaultFrame);
+		_frames.emplace_back(std::make_pair(std::move(fcTL), std::move(frame)));
 	}
 	else
 		defaultFrameStorage.reset(_defaultFrame);

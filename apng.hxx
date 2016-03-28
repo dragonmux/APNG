@@ -222,7 +222,7 @@ private:
 	interlace_t _interlacing;
 	acTL_t controlChunk;
 	bitmap_t *_defaultFrame;
-	std::vector<std::unique_ptr<bitmap_t>> _frames;
+	std::vector<std::pair<fcTL_t, std::unique_ptr<bitmap_t>>> _frames;
 	std::unique_ptr<bitmap_t> defaultFrameStorage;
 
 public:
