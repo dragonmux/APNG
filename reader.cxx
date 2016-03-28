@@ -126,7 +126,8 @@ apng_t::apng_t(stream_t &stream)
 	if (!contains(chunks, isIDAT) || isAfter(chunkACTL, extractFirst(chunks, isIDAT)) || !contains(chunks, isFCTL))
 		throw invalidPNG_t();
 	auto frameControlChunks = extract(chunks, isFCTL);
-	uint32_t i = processDefaultFrame(chunks, isBefore(extractFirst(chunks, isIDAT), frameControlChunks[0]));
+	uint32_t i = processDefaultFrame(chunks, isBefore(extractFirst(chunks, isIDAT), frameControlChunks[0]),
+		frameControlChunks[0]);
 }
 
 void apng_t::checkSig(stream_t &stream)
@@ -214,7 +215,8 @@ bool apng_t::processFrame(stream_t &stream, bitmap_t &frame)
 	return false;
 }
 
-uint32_t apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks, const bool isSequenceFrame)
+uint32_t apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks, const bool isSequenceFrame,
+	const chunk_t *const controlChunk)
 {
 	auto dataChunks = extract(chunks, isIDAT);
 	size_t offs = 0, dataLength = 0;
@@ -231,7 +233,11 @@ uint32_t apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks, const b
 	zlibStream_t frameData(memoryStream, zlibStream_t::inflate);
 	_defaultFrame = new bitmap_t(_width, _height, pixelFormat());
 	if (isSequenceFrame)
+	{
+		fcTL_t fcTL = fcTL_t::reinterpret(*controlChunk);
+		fcTL.check(_width, _height, true);
 		_frames.emplace_back(_defaultFrame);
+	}
 	else
 		defaultFrameStorage.reset(_defaultFrame);
 
@@ -281,10 +287,17 @@ fcTL_t fcTL_t::reinterpret(const chunk_t &chunk)
 	return fcTL_t(chunk.data());
 }
 
-void fcTL_t::check(const uint32_t pngWidth, const uint32_t pngHeight)
+void fcTL_t::check(const uint32_t pngWidth, const uint32_t pngHeight, const bool first)
 {
 	if (!_width || !_height || (_xOffset + _width) > pngWidth || (_yOffset + _height) > pngHeight)
 		throw invalidPNG_t();
+	if (first)
+	{
+		if (_width != pngWidth || _height != pngHeight || !_xOffset || !_yOffset)
+			throw invalidPNG_t();
+		//if (_disposeOp = disposeOp_t::previous)
+		//	_disposeOp = disposeOp_t::background;
+	}
 }
 
 invalidPNG_t::invalidPNG_t() noexcept { }

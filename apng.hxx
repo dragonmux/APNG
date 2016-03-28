@@ -183,7 +183,7 @@ public:
 	}
 
 	static fcTL_t reinterpret(const chunk_t &chunk);
-	void check(const uint32_t pngWidth, const uint32_t pngHeight);
+	void check(const uint32_t pngWidth, const uint32_t pngHeight, const bool first = false);
 };
 
 enum class pixelFormat_t : uint8_t
@@ -241,7 +241,8 @@ private:
 	void validateHeader();
 
 	bool processFrame(stream_t &stream, bitmap_t &frame);
-	uint32_t processDefaultFrame(const std::vector<chunk_t> &chunks, const bool isSequenceFrame);
+	uint32_t processDefaultFrame(const std::vector<chunk_t> &chunks, const bool isSequenceFrame,
+		const chunk_t *const controlChunk);
 };
 
 struct APNG_API invalidPNG_t : public std::exception
