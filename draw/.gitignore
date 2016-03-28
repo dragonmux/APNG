@@ -1,2 +1,5 @@
 moc*.cpp
 ui*.h
+Makefile
+*.pro.user
+drawAPNG
