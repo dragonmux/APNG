@@ -85,15 +85,29 @@ template<typename T> struct pngRGB_t
 template<typename T> struct pngRGBA_t final : public pngRGB_t<T>
 	{ T a; };
 
+template<typename T> struct pngGrey_t
+	{ T v; };
+
+template<typename T> struct pngGreyA_t final : public pngGrey_t<T>
+	{ T a; };
+
 using pngRGB8_t = pngRGB_t<uint8_t>;
 using pngRGB16_t = pngRGB_t<uint16_t>;
 using pngRGBA8_t = pngRGBA_t<uint8_t>;
 using pngRGBA16_t = pngRGBA_t<uint16_t>;
+using pngGrey8_t = pngGrey_t<uint8_t>;
+using pngGrey16_t = pngGrey_t<uint16_t>;
+using pngGreyA8_t = pngGreyA_t<uint8_t>;
+using pngGreyA16_t = pngGreyA_t<uint16_t>;
 
 template<typename T> bool readRGB(stream_t &stream, T &pixel) noexcept
 	{ return stream.read(pixel.r) && stream.read(pixel.g) && stream.read(pixel.b); }
 template<typename T> bool readRGBA(stream_t &stream, T &pixel) noexcept
 	{ return readRGB(stream, pixel) && stream.read(pixel.a); }
+template<typename T> bool readGrey(stream_t &stream, T &pixel) noexcept
+	{ return stream.read(pixel.v); }
+template<typename T> bool readGreyA(stream_t &stream, T &pixel) noexcept
+	{ return readGrey(stream, pixel) && stream.read(pixel.a); }
 
 template<typename T, bool copyFunc(stream_t &, T &)> bool copyFrame(stream_t &stream, void *const dataPtr, const bitmapRegion_t frame) noexcept
 {

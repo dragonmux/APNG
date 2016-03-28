@@ -195,6 +195,21 @@ bool apng_t::processFrame(stream_t &stream, bitmap_t &frame)
 		else if (_bitDepth == bitDepth_t::bps16)
 			return copyFrame<pngRGBA16_t, readRGBA>(stream, data, region);
 	}
+	else if (_colourType == colourType_t::greyscale)
+	{
+		// 1, 2, 4 here..
+		/*else*/ if (_bitDepth == bitDepth_t::bps8)
+			return copyFrame<pngGrey8_t, readGrey>(stream, data, region);
+		else if (_bitDepth == bitDepth_t::bps16)
+			return copyFrame<pngGrey16_t, readGrey>(stream, data, region);
+	}
+	else if (_colourType == colourType_t::greyscaleAlpha)
+	{
+		if (_bitDepth == bitDepth_t::bps8)
+			return copyFrame<pngGreyA8_t, readGreyA>(stream, data, region);
+		else if (_bitDepth == bitDepth_t::bps16)
+			return copyFrame<pngGreyA16_t, readGreyA>(stream, data, region);
+	}
 	return false;
 }
 
