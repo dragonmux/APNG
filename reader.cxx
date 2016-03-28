@@ -181,19 +181,21 @@ bool apng_t::processFrame(stream_t &stream, bitmap_t &frame)
 {
 	void *const data = frame.data();
 	const bitmapRegion_t region(frame.width(), frame.height());
-	switch (frame.format())
+	if (_colourType == colourType_t::rgb)
 	{
-		case pixelFormat_t::format24bppRGB:
+		if (_bitDepth == bitDepth_t::bps8)
 			return copyFrame<pngRGB8_t, readRGB>(stream, data, region);
-		case pixelFormat_t::format48bppRGB:
+		else if (_bitDepth == bitDepth_t::bps16)
 			return copyFrame<pngRGB16_t, readRGB>(stream, data, region);
-		case pixelFormat_t::format32bppRGBA:
-			return copyFrame<pngRGBA8_t, readRGBA>(stream, data, region);
-		case pixelFormat_t::format64bppRGBA:
-			return copyFrame<pngRGBA16_t, readRGBA>(stream, data, region);
-		default:
-			return false;
 	}
+	else if (_colourType == colourType_t::rgba)
+	{
+		if (_bitDepth == bitDepth_t::bps8)
+			return copyFrame<pngRGBA8_t, readRGBA>(stream, data, region);
+		else if (_bitDepth == bitDepth_t::bps16)
+			return copyFrame<pngRGBA16_t, readRGBA>(stream, data, region);
+	}
+	return false;
 }
 
 void apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks)
