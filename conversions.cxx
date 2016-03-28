@@ -41,3 +41,15 @@ interlace_t::interlace_t(const uint8_t type)
 	else
 		throw invalidPNG_t();
 }
+
+disposeOp_t::disposeOp_t(const uint8_t op)
+{
+	if (op == 0)
+		value = none;
+	else if (op == 1)
+		value = background;
+	else if (op == 2)
+		value = previous;
+	else
+		throw invalidPNG_t();
+}

@@ -279,6 +279,7 @@ fcTL_t::fcTL_t(const uint8_t *const data) noexcept
 	_yOffset = swap32(data32[4]);
 	_delayN = swap16(data16[10]);
 	_delayD = swap16(data16[11]);
+	_disposeOp = disposeOp_t(data[24]);
 }
 
 fcTL_t fcTL_t::reinterpret(const chunk_t &chunk)
@@ -296,8 +297,8 @@ void fcTL_t::check(const uint32_t pngWidth, const uint32_t pngHeight, const bool
 	{
 		if (_width != pngWidth || _height != pngHeight || !_xOffset || !_yOffset)
 			throw invalidPNG_t();
-		//if (_disposeOp = disposeOp_t::previous)
-		//	_disposeOp = disposeOp_t::background;
+		if (_disposeOp = disposeOp_t::previous)
+			_disposeOp = disposeOp_t::background;
 	}
 }
 
