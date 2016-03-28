@@ -95,7 +95,7 @@ template<typename T> bool readRGB(stream_t &stream, T &pixel) noexcept
 template<typename T> bool readRGBA(stream_t &stream, T &pixel) noexcept
 	{ return readRGB(stream, pixel) && stream.read(pixel.a); }
 
-template<typename T, bool copyFunc(stream_t &, T &)> bool copyFrame(stream_t &stream, void *const dataPtr, bitmapRegion_t frame) noexcept
+template<typename T, bool copyFunc(stream_t &, T &)> bool copyFrame(stream_t &stream, void *const dataPtr, const bitmapRegion_t frame) noexcept
 {
 	T *const data = static_cast<T *const>(dataPtr);
 	const uint32_t width = frame.width();

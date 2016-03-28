@@ -180,7 +180,7 @@ pixelFormat_t apng_t::pixelFormat() const
 bool apng_t::processFrame(stream_t &stream, bitmap_t &frame)
 {
 	void *const data = frame.data();
-	bitmapRegion_t region(frame.width(), frame.height());
+	const bitmapRegion_t region(frame.width(), frame.height());
 	switch (frame.format())
 	{
 		case pixelFormat_t::format24bppRGB:
