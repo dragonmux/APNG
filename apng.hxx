@@ -142,7 +142,7 @@ public:
 	}
 
 	static acTL_t reinterpret(const chunk_t &chunk);
-	void check(const std::vector<chunk_t> &chunks);
+	void check(const std::vector<chunk_t> &chunks) const;
 
 	uint32_t frames() const noexcept { return _frames; }
 	uint32_t loops() const noexcept { return _loops; }

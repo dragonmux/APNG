@@ -248,7 +248,7 @@ acTL_t::acTL_t(const uint32_t *const data) noexcept
 	_loops = swap32(data[1]);
 }
 
-void acTL_t::check(const std::vector<chunk_t> &chunks)
+void acTL_t::check(const std::vector<chunk_t> &chunks) const
 {
 	if (_frames != extract(chunks, isFCTL).size() && !_frames)
 		throw invalidPNG_t();
