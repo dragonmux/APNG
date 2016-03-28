@@ -120,7 +120,7 @@ apng_t::apng_t(stream_t &stream)
 	const chunk_t *const chunkACTL = extractFirst(chunks, isACTL);
 	if (!chunkACTL || extract(chunks, isACTL).size() != 1 || chunkACTL->length() != 8)
 		throw invalidPNG_t();
-	controlChunk = acTL_t::reinterpret(chunkACTL->data());
+	controlChunk = acTL_t::reinterpret(*chunkACTL);
 	controlChunk.check(chunks);
 
 	if (!contains(chunks, isIDAT) || isAfter(chunkACTL, extractFirst(chunks, isIDAT)) || !contains(chunks, isFCTL))
@@ -241,18 +241,23 @@ uint32_t apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks, const b
 	return isSequenceFrame ? 1 : 0;
 }
 
+acTL_t::acTL_t(const uint32_t *const data) noexcept
+{
+	_frames = swap32(data[0]);
+	_loops = swap32(data[1]);
+}
+
 void acTL_t::check(const std::vector<chunk_t> &chunks)
 {
 	if (_frames != extract(chunks, isFCTL).size() && !_frames)
 		throw invalidPNG_t();
 }
 
-acTL_t acTL_t::reinterpret(const uint8_t *const data) noexcept
+acTL_t acTL_t::reinterpret(const chunk_t &chunk)
 {
-	acTL_t chunk;
-	chunk._frames = swap32(reinterpret_cast<const uint32_t *const>(data)[0]);
-	chunk._loops = swap32(reinterpret_cast<const uint32_t *const>(data)[1]);
-	return chunk;
+	if (chunk.length() != 8)
+		throw invalidPNG_t();
+	return acTL_t(reinterpret_cast<const uint32_t *const>(chunk.data()));
 }
 
 invalidPNG_t::invalidPNG_t() noexcept { }

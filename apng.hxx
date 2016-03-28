@@ -128,20 +128,20 @@ private:
 	uint32_t _frames;
 	uint32_t _loops;
 
+	acTL_t(const uint32_t *const data) noexcept;
 	acTL_t(const acTL_t &) = delete;
 	acTL_t &operator =(const acTL_t &) = delete;
 
 public:
-	acTL_t() noexcept : _frames(1), _loops(0) { }
+	constexpr acTL_t() noexcept : _frames(1), _loops(0) { }
 	acTL_t(acTL_t &&acTL) noexcept : _frames(acTL._frames), _loops(acTL._loops) { }
-	acTL_t &operator =(acTL_t &&acTL) noexcept
+	void operator =(acTL_t &&acTL) noexcept
 	{
 		_frames = acTL._frames;
 		_loops = acTL._frames;
-		return *this;
 	}
 
-	static acTL_t reinterpret(const uint8_t *const data) noexcept;
+	static acTL_t reinterpret(const chunk_t &chunk);
 	void check(const std::vector<chunk_t> &chunks);
 
 	uint32_t frames() const noexcept { return _frames; }
