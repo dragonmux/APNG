@@ -46,17 +46,22 @@ template<typename T> bool contains(const std::vector<T> &list,
 	return false;
 }
 
-template<typename T> std::vector<const T *> extract(const std::vector<T> &list,
-	bool condition(const T &)) noexcept
+template<typename T> std::vector<const T *> extract(const typename std::vector<T>::const_iterator &begin,
+	const typename std::vector<T>::const_iterator &end, bool condition(const T &)) noexcept
 {
 	std::vector<const T *> result;
-	for (const T &item : list)
+	for (auto iter = begin; iter != end; ++iter)
 	{
+		const T &item = *iter;
 		if (condition(item))
 			result.emplace_back(&item);
 	}
 	return result;
 }
+
+template<typename T> std::vector<const T *> extract(const std::vector<T> &list,
+	bool condition(const T &)) noexcept
+	{ return extract(list.begin(), list.end(), condition); }
 
 template<typename T> const T *extractFirst(const std::vector<T> &list,
 	bool condition(const T &)) noexcept
