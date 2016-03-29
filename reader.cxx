@@ -235,7 +235,7 @@ uint32_t apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks, const b
 	if (isSequenceFrame)
 	{
 		std::unique_ptr<bitmap_t> frame(_defaultFrame);
-		fcTL_t fcTL = fcTL_t::reinterpret(*controlChunk);
+		fcTL_t fcTL = fcTL_t::reinterpret(*controlChunk, 0);
 		fcTL.check(_width, _height, true);
 		_frames.emplace_back(std::make_pair(std::move(fcTL), std::move(frame)));
 	}
@@ -268,11 +268,11 @@ acTL_t acTL_t::reinterpret(const chunk_t &chunk)
 	return acTL_t(reinterpret_cast<const uint32_t *const>(chunk.data()));
 }
 
-fcTL_t::fcTL_t(const uint8_t *const data) noexcept
+fcTL_t::fcTL_t(const uint8_t *const data, const uint32_t frame) noexcept : _frame(frame)
 {
 	const uint32_t *const data32 = reinterpret_cast<const uint32_t *const>(data);
 	const uint16_t *const data16 = reinterpret_cast<const uint16_t *const>(data);
-	_sequenceNum = swap32(data32[0]);
+	_sequenceIndex = swap32(data32[0]);
 	_width = swap32(data32[1]);
 	_height = swap32(data32[2]);
 	_xOffset = swap32(data32[3]);
@@ -283,11 +283,11 @@ fcTL_t::fcTL_t(const uint8_t *const data) noexcept
 	_blendOp = blendOp_t(data[25]);
 }
 
-fcTL_t fcTL_t::reinterpret(const chunk_t &chunk)
+fcTL_t fcTL_t::reinterpret(const chunk_t &chunk, const uint32_t frame)
 {
 	if (chunk.length() != 26)
 		throw invalidPNG_t();
-	return fcTL_t(chunk.data());
+	return fcTL_t(chunk.data(), frame);
 }
 
 void fcTL_t::check(const uint32_t pngWidth, const uint32_t pngHeight, const bool first)
@@ -296,7 +296,7 @@ void fcTL_t::check(const uint32_t pngWidth, const uint32_t pngHeight, const bool
 		throw invalidPNG_t();
 	if (first)
 	{
-		if (_width != pngWidth || _height != pngHeight || !_xOffset || !_yOffset || !_sequenceNum)
+		if (_width != pngWidth || _height != pngHeight || !_xOffset || !_yOffset || !_sequenceIndex)
 			throw invalidPNG_t();
 		if (_disposeOp = disposeOp_t::previous)
 			_disposeOp = disposeOp_t::background;
