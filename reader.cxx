@@ -117,13 +117,13 @@ apng_t::apng_t(stream_t &stream)
 	if (!isIEND(end) || end.length() != 0)
 		throw invalidPNG_t();
 
-	const chunk_t *const chunkACTL = extractFirst(chunks, isACTL);
-	if (!chunkACTL || extract(chunks, isACTL).size() != 1 || chunkACTL->length() != 8)
+	const chunk_t *const acTL = extractFirst(chunks, isACTL);
+	if (!acTL || extract(chunks, isACTL).size() != 1 || acTL->length() != 8)
 		throw invalidPNG_t();
-	controlChunk = acTL_t::reinterpret(*chunkACTL);
+	controlChunk = acTL_t::reinterpret(*acTL);
 	controlChunk.check(chunks);
 
-	if (!contains(chunks, isIDAT) || isAfter(chunkACTL, extractFirst(chunks, isIDAT)) || !contains(chunks, isFCTL))
+	if (!contains(chunks, isIDAT) || isAfter(acTL, extractFirst(chunks, isIDAT)) || !contains(chunks, isFCTL))
 		throw invalidPNG_t();
 	const auto fcTLChunks = extractIters(chunks, isFCTL);
 	const chunk_t &fcTL = *fcTLChunks[0];
