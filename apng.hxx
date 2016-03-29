@@ -285,6 +285,8 @@ private:
 
 	bool processFrame(stream_t &stream, bitmap_t &frame);
 	uint32_t processDefaultFrame(const chunkList_t &chunks, const bool isSequenceFrame, const chunk_t &controlChunk);
+	void processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chunkEnd, const uint32_t frameIndex,
+		const chunk_t &controlChunk);
 };
 
 struct APNG_API invalidPNG_t : public std::exception

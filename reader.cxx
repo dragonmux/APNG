@@ -51,6 +51,7 @@ bool isACTL(const chunk_t &chunk) noexcept { return chunk.type() == typeACTL; }
 bool isIDAT(const chunk_t &chunk) noexcept { return chunk.type() == typeIDAT; }
 bool isFCTL(const chunk_t &chunk) noexcept { return chunk.type() == typeFCTL; }
 bool isIEND(const chunk_t &chunk) noexcept { return chunk.type() == typeIEND; }
+bool isFDAT(const chunk_t &chunk) noexcept { return chunk.type() == typeFDAT; }
 
 bitmap_t::bitmap_t(const uint32_t width, const uint32_t height, const pixelFormat_t format) :
 	_width(width), _height(height), _format(format)
@@ -128,6 +129,9 @@ apng_t::apng_t(stream_t &stream)
 	const auto fcTLChunks = extractIters(chunks, isFCTL);
 	const chunk_t &fcTL = *fcTLChunks[0];
 	uint32_t i = processDefaultFrame(chunks, isBefore(&fcTL, extractFirst(chunks, isIDAT)), fcTL);
+	const uint32_t lastFrame = controlChunk.frames() - 1;
+	for (; i < controlChunk.frames(); ++i)
+		processFrame(fcTLChunks[i], (i == lastFrame ? chunks.end() : fcTLChunks[i + 1]), i, *fcTLChunks[i]);
 }
 
 void apng_t::checkSig(stream_t &stream)
@@ -246,6 +250,35 @@ uint32_t apng_t::processDefaultFrame(const chunkList_t &chunks, const bool isSeq
 
 	// Return what the first unread animation frame index is.
 	return isSequenceFrame ? 1 : 0;
+}
+
+void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chunkEnd, const uint32_t frameIndex,
+	const chunk_t &controlChunk)
+{
+	fcTL_t fcTL = fcTL_t::reinterpret(controlChunk, frameIndex);
+	fcTL.check(_width, _height, frameIndex == 0);
+
+	auto dataChunks = extract(chunkBegin, chunkEnd, isFDAT);
+	size_t offs = 0, dataLength = 0, sequenceIndex = fcTL.sequenceIndex();
+	for (const chunk_t *chunk : dataChunks)
+		dataLength += chunk->length() - 4;
+	std::unique_ptr<uint8_t[]> data(new uint8_t[dataLength]);
+	for (const chunk_t *chunk : dataChunks)
+	{
+		const uint8_t *const chunkData = chunk->data();
+		const uint32_t sequenceNum = *reinterpret_cast<const uint32_t *>(chunkData);
+		if (swap32(sequenceNum) != ++sequenceIndex)
+			throw invalidPNG_t();
+		memcpy(data.get() + offs, chunkData + 4, chunk->length() - 4);
+		offs += chunk->length();
+	}
+
+	memoryStream_t memoryStream(data.get(), dataLength);
+	zlibStream_t frameData(memoryStream, zlibStream_t::inflate);
+	std::unique_ptr<bitmap_t> frame(new bitmap_t(_width, _height, pixelFormat()));
+	if (!processFrame(frameData, *frame))
+		throw invalidPNG_t();
+	_frames.emplace_back(std::make_pair(std::move(fcTL), std::move(frame)));
 }
 
 acTL_t::acTL_t(const uint32_t *const data) noexcept
