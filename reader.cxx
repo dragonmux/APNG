@@ -77,7 +77,7 @@ bitmap_t::bitmap_t(const uint32_t width, const uint32_t height, const pixelForma
 
 apng_t::apng_t(stream_t &stream)
 {
-	std::vector<chunk_t> chunks;
+	chunkList_t chunks;
 	checkSig(stream);
 
 	chunk_t header = chunk_t::loadChunk(stream);
@@ -125,9 +125,9 @@ apng_t::apng_t(stream_t &stream)
 
 	if (!contains(chunks, isIDAT) || isAfter(chunkACTL, extractFirst(chunks, isIDAT)) || !contains(chunks, isFCTL))
 		throw invalidPNG_t();
-	auto frameControlChunks = extract(chunks, isFCTL);
-	uint32_t i = processDefaultFrame(chunks, isBefore(extractFirst(chunks, isIDAT), frameControlChunks[0]),
-		frameControlChunks[0]);
+	const auto fcTLChunks = extractIters(chunks, isFCTL);
+	const chunk_t &fcTL = *fcTLChunks[0];
+	uint32_t i = processDefaultFrame(chunks, isBefore(&fcTL, extractFirst(chunks, isIDAT)), fcTL);
 }
 
 void apng_t::checkSig(stream_t &stream)
@@ -215,8 +215,7 @@ bool apng_t::processFrame(stream_t &stream, bitmap_t &frame)
 	return false;
 }
 
-uint32_t apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks, const bool isSequenceFrame,
-	const chunk_t *const controlChunk)
+uint32_t apng_t::processDefaultFrame(const chunkList_t &chunks, const bool isSequenceFrame, const chunk_t &controlChunk)
 {
 	auto dataChunks = extract(chunks, isIDAT);
 	size_t offs = 0, dataLength = 0;
@@ -235,7 +234,7 @@ uint32_t apng_t::processDefaultFrame(const std::vector<chunk_t> &chunks, const b
 	if (isSequenceFrame)
 	{
 		std::unique_ptr<bitmap_t> frame(_defaultFrame);
-		fcTL_t fcTL = fcTL_t::reinterpret(*controlChunk, 0);
+		fcTL_t fcTL = fcTL_t::reinterpret(controlChunk, 0);
 		fcTL.check(_width, _height, true);
 		_frames.emplace_back(std::make_pair(std::move(fcTL), std::move(frame)));
 	}

@@ -255,6 +255,9 @@ public:
 struct APNG_API apng_t final
 {
 private:
+	using chunkList_t = std::vector<chunk_t>;
+	using chunkIter_t = chunkList_t::const_iterator;
+
 	uint32_t _width;
 	uint32_t _height;
 	bitDepth_t _bitDepth;
@@ -281,8 +284,7 @@ private:
 	void validateHeader();
 
 	bool processFrame(stream_t &stream, bitmap_t &frame);
-	uint32_t processDefaultFrame(const std::vector<chunk_t> &chunks, const bool isSequenceFrame,
-		const chunk_t *const controlChunk);
+	uint32_t processDefaultFrame(const chunkList_t &chunks, const bool isSequenceFrame, const chunk_t &controlChunk);
 };
 
 struct APNG_API invalidPNG_t : public std::exception
