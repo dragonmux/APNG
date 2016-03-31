@@ -224,7 +224,8 @@ public:
 	void check(const uint32_t pngWidth, const uint32_t pngHeight, const bool first = false);
 
 	uint32_t sequenceIndex() const noexcept { return _sequenceIndex; }
-	void waitFor() const noexcept;
+	uint16_t delayN() const noexcept { return _delayN; }
+	uint16_t delayD() const noexcept { return _delayD; }
 };
 
 enum class pixelFormat_t : uint8_t
@@ -235,6 +236,20 @@ enum class pixelFormat_t : uint8_t
 	format32bppRGBA,
 	format48bppRGB,
 	format64bppRGBA
+};
+
+struct APNG_API displayTime_t final
+{
+private:
+	const uint32_t delayN, delayD;
+	displayTime_t(displayTime_t &&) = delete;
+	displayTime_t &operator =(const displayTime_t &) = delete;
+	displayTime_t &operator =(displayTime_t &&) = delete;
+
+public:
+	constexpr displayTime_t(const uint32_t N, const uint32_t D) noexcept : delayN(N), delayD(D) { }
+	displayTime_t(const displayTime_t &time) noexcept : delayN(time.delayN), delayD(time.delayD) { }
+	void waitFor() const noexcept;
 };
 
 struct APNG_API bitmap_t final
@@ -279,6 +294,8 @@ public:
 	interlace_t interlacing() const noexcept { return _interlacing; }
 	const bitmap_t *defaultFrame() const noexcept { return _defaultFrame; }
 	pixelFormat_t pixelFormat() const;
+	uint32_t loops() const noexcept { return controlChunk.loops(); }
+	std::vector<std::pair<const displayTime_t, const bitmap_t *const>> frames() const noexcept;
 
 private:
 	void checkSig(stream_t &stream);

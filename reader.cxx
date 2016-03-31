@@ -283,6 +283,17 @@ void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chun
 	_frames.emplace_back(std::make_pair(std::move(fcTL), std::move(frame)));
 }
 
+std::vector<std::pair<const displayTime_t, const bitmap_t *const>> apng_t::frames() const noexcept
+{
+	std::vector<std::pair<const displayTime_t, const bitmap_t *const>> frameArray;
+	for (const auto &frame : _frames)
+	{
+		const fcTL_t &fcTL = frame.first;
+		frameArray.emplace_back(std::make_pair(displayTime_t(fcTL.delayN(), fcTL.delayD()), frame.second.get()));
+	}
+	return frameArray;
+}
+
 acTL_t::acTL_t(const uint32_t *const data) noexcept
 {
 	_frames = swap32(data[0]);
@@ -344,11 +355,11 @@ void fcTL_t::check(const uint32_t pngWidth, const uint32_t pngHeight, const bool
 		_delayD = 100;
 }
 
-void fcTL_t::waitFor() const noexcept
+void displayTime_t::waitFor() const noexcept
 {
-	const std::chrono::seconds num(_delayN);
+	const std::chrono::seconds num(delayN);
 	const std::chrono::nanoseconds N(num);
-	std::this_thread::sleep_for(N / _delayD);
+	std::this_thread::sleep_for(N / delayD);
 }
 
 invalidPNG_t::invalidPNG_t() noexcept { }
