@@ -174,7 +174,7 @@ public:
 	void operator =(acTL_t &&acTL) noexcept
 	{
 		_frames = acTL._frames;
-		_loops = acTL._frames;
+		_loops = acTL._loops;
 	}
 
 	static acTL_t reinterpret(const chunk_t &chunk);
