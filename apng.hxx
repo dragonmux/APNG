@@ -224,6 +224,7 @@ public:
 	void check(const uint32_t pngWidth, const uint32_t pngHeight, const bool first = false);
 
 	uint32_t sequenceIndex() const noexcept { return _sequenceIndex; }
+	void waitFor() const noexcept;
 };
 
 enum class pixelFormat_t : uint8_t

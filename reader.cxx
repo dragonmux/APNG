@@ -1,3 +1,5 @@
+#include <chrono>
+#include <thread>
 #include <memory.h>
 #include "crc32.hxx"
 #include "utilities.hxx"
@@ -333,6 +335,20 @@ void fcTL_t::check(const uint32_t pngWidth, const uint32_t pngHeight, const bool
 		if (_disposeOp = disposeOp_t::previous)
 			_disposeOp = disposeOp_t::background;
 	}
+	if (!_delayN)
+	{
+		_delayN = 1;
+		_delayD = 100;
+	}
+	else if (!_delayD)
+		_delayD = 100;
+}
+
+void fcTL_t::waitFor() const noexcept
+{
+	const std::chrono::seconds num(_delayN);
+	const std::chrono::nanoseconds N(num);
+	std::this_thread::sleep_for(N / _delayD);
 }
 
 invalidPNG_t::invalidPNG_t() noexcept { }
