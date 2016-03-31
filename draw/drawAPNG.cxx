@@ -62,14 +62,13 @@ template<typename T, QRgb copyFunc(const T)> void copyFrame(const bitmap_t *cons
 drawAPNG_t::drawAPNG_t(QWidget *parent) noexcept : QMainWindow(parent)
 {
 	window.setupUi(this);
-
-	animateThread = std::thread([this]() noexcept { animate(); });
 }
 
 drawAPNG_t::~drawAPNG_t() noexcept
 {
 	leave = true;
-	animateThread.join();
+	if (animateThread.joinable())
+		animateThread.join();
 }
 
 void drawAPNG_t::image(std::unique_ptr<apng_t> &&image) noexcept
@@ -79,8 +78,7 @@ void drawAPNG_t::image(std::unique_ptr<apng_t> &&image) noexcept
 	apng.swap(image);
 	activeFrame = QImage(apng->width(), apng->height(), pixelFormat(apng->pixelFormat()));
 	activeFrame.fill(QColor(0, 0, 0, 0));
-	processFrame(apng->defaultFrame(), activeFrame);
-	window.image->setPixmap(QPixmap::fromImage(activeFrame));
+	animateThread = std::thread([this]() noexcept { animate(); });
 }
 
 QImage::Format drawAPNG_t::pixelFormat(const pixelFormat_t format) const noexcept
@@ -119,7 +117,21 @@ void drawAPNG_t::processFrame(const bitmap_t *const frame, QImage &dest) noexcep
 
 void drawAPNG_t::animate() noexcept
 {
-	// TODO: Implement animation here.
+	const uint32_t loopMax = apng->loops();
+	uint32_t frame = 0, loop = 0;
+	const auto &frames = apng->frames();
+
+	while (!leave && (loopMax == 0 || loop < loopMax))
+	{
+		processFrame(frames[frame].second, activeFrame);
+		window.image->setPixmap(QPixmap::fromImage(activeFrame));
+		frames[frame].first.waitFor();
+		if (++frame == frames.size())
+		{
+			frame = 0;
+			++loop;
+		}
+	}
 }
 
 int main(int argc, char **argv) noexcept
