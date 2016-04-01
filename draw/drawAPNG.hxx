@@ -16,7 +16,8 @@ private:
 	std::atomic<bool> leave;
 	std::thread animateThread;
 	std::unique_ptr<apng_t> apng;
-	QImage activeFrame;
+	std::vector<QPixmap> frames;
+	std::vector<displayTime_t> displayTimings;
 
 	QImage::Format pixelFormat(const pixelFormat_t format) const noexcept;
 	void processFrame(const bitmap_t *const frame, QImage &dest) noexcept;

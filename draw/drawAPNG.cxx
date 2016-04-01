@@ -76,8 +76,14 @@ void drawAPNG_t::image(std::unique_ptr<apng_t> &&image) noexcept
 	if (!image)
 		return;
 	apng.swap(image);
-	activeFrame = QImage(apng->width(), apng->height(), pixelFormat(apng->pixelFormat()));
-	activeFrame.fill(QColor(0, 0, 0, 0));
+	for (const auto &frame : apng->frames())
+	{
+		QImage frameImage = QImage(apng->width(), apng->height(), pixelFormat(apng->pixelFormat()));
+		frameImage.fill(QColor(0, 0, 0, 0));
+		processFrame(frame.second, frameImage);
+		frames.emplace_back(std::move(QPixmap::fromImage(frameImage)));
+		displayTimings.emplace_back(frame.first);
+	}
 	animateThread = std::thread([this]() noexcept { animate(); });
 }
 
@@ -119,13 +125,11 @@ void drawAPNG_t::animate() noexcept
 {
 	const uint32_t loopMax = apng->loops();
 	uint32_t frame = 0, loop = 0;
-	const auto &frames = apng->frames();
 
 	while (!leave && (loopMax == 0 || loop < loopMax))
 	{
-		processFrame(frames[frame].second, activeFrame);
-		window.image->setPixmap(QPixmap::fromImage(activeFrame));
-		frames[frame].first.waitFor();
+		window.image->setPixmap(frames[frame]);
+		displayTimings[frame].waitFor();
 		if (++frame == frames.size())
 		{
 			frame = 0;
