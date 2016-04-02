@@ -2,7 +2,6 @@
 #define UTILITIES_HXX
 
 #include <stdint.h>
-//#include <functional>
 #include "stream.hxx"
 
 struct bitmapRegion_t final
@@ -34,7 +33,6 @@ uint16_t swap16(const uint16_t i) noexcept
 }
 void swap(uint16_t &i) noexcept { i = swap16(i); }
 
-// const std::function<bool(const T &) noexcept> condition
 template<typename T> bool contains(const std::vector<T> &list,
 	bool condition(const T &)) noexcept
 {
