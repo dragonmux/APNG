@@ -260,11 +260,11 @@ template<blendOp_t::_blendOp_t op> void compositFrame(const bitmap_t &source, bi
 		compFrame(compRGB<pngRGB8_t, op>, source, destination, 0, 0);
 	else if (pixelFormat == pixelFormat_t::format48bppRGB)
 		compFrame(compRGB<pngRGB16_t, op>, source, destination, 0, 0);
-	/*else if (pixelFormat == pixelFormat_t::format32bppRGBA)
+	else if (pixelFormat == pixelFormat_t::format32bppRGBA)
 		compFrame(compRGBA<pngRGBA8_t, op>, source, destination, 0, 0);
 	else if (pixelFormat == pixelFormat_t::format64bppRGBA)
 		compFrame(compRGBA<pngRGBA16_t, op>, source, destination, 0, 0);
-	else if (pixelFormat == pixelFormat_t::format8bppGrey)
+	/*else if (pixelFormat == pixelFormat_t::format8bppGrey)
 		compFrame<pngGrey8_t, compGrey<pngGrey8_t, compFunc>>(source, destination, 0, 0);
 	else if (pixelFormat == pixelFormat_t::format16bppGrey)
 		compFrame<pngGrey16_t, compGrey<pngGrey16_t, compFunc>>(source, destination, 0, 0);*/
