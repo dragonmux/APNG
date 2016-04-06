@@ -298,11 +298,11 @@ void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chun
 
 	memoryStream_t memoryStream(data.get(), dataLength);
 	zlibStream_t frameData(memoryStream, zlibStream_t::inflate);
-	std::unique_ptr<bitmap_t> frame(new bitmap_t(_width, _height, format));
-	if (!processFrame(frameData, *frame))
+	bitmap_t partialFrame(fcTL.width(), fcTL.height(), format);
+	if (!processFrame(frameData, partialFrame))
 		throw invalidPNG_t();
 
-	/*// This constructs a disposeOp_t::background initialised bitmap anyway.
+	// This constructs a disposeOp_t::background initialised bitmap anyway.
 	std::unique_ptr<bitmap_t> frame(new bitmap_t(_width, _height, format));
 	if (fcTL.disposeOp() == disposeOp_t::none && frameIndex != 0)
 		compositFrame<blendOp_t::source>(*_frames.back().second, *frame, format);
@@ -315,7 +315,7 @@ void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chun
 	if (fcTL.blendOp() == blendOp_t::source && fcTL.disposeOp() != disposeOp_t::background)
 		compositFrame<blendOp_t::source>(partialFrame, *frame, format);
 	else
-		compositFrame<blendOp_t::over>(partialFrame, *frame, format);*/
+		compositFrame<blendOp_t::over>(partialFrame, *frame, format);
 	_frames.emplace_back(std::make_pair(std::move(fcTL), std::move(frame)));
 }
 
