@@ -59,7 +59,7 @@ template<typename T, QRgb copyFunc(const T)> void copyFrame(const bitmap_t *cons
 	}
 }
 
-drawAPNG_t::drawAPNG_t(QWidget *parent) noexcept : QMainWindow(parent)
+drawAPNG_t::drawAPNG_t(QWidget *parent) noexcept : QMainWindow(parent), leave(false)
 {
 	window.setupUi(this);
 }
