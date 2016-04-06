@@ -148,4 +148,41 @@ template<typename T, bool copyFunc(stream_t &, T &)> bool copyFrame(stream_t &st
 	return true;
 }
 
+template<typename T> T compSource(T, T b) noexcept
+	{ return b; }
+template<typename T> T compOver(T a, T b) noexcept
+	{ return (a >> 1) + (b >> 1) + ((a & b) & 0x01); }
+
+template<blendOp_t::_blendOp_t op, typename T> T compOp(T a, T b) noexcept
+{
+	if (op == blendOp_t::source)
+		return compSource(a, b);
+	else
+		return compOver(a, b);
+}
+
+template<typename T, blendOp_t::_blendOp_t op, typename U = T> U compRGB(const T pixelA, const T pixelB) noexcept
+	{ return {compOp<op>(pixelA.r, pixelB.r), compOp<op>(pixelA.g, pixelB.g), compOp<op>(pixelA.b, pixelB.b)}; }
+
+template<typename T> void compFrame(T compFunc(const T, const T), const bitmap_t &source, bitmap_t &destination,
+	const uint32_t xOffset, const uint32_t yOffset) noexcept
+{
+	if ((source.width() + xOffset) > destination.width() || (source.height() + yOffset) > destination.height())
+		return;
+	const T *const srcData = static_cast<const T *const>(static_cast<const void *const>(source.data()));
+	T *const dstData = static_cast<T *const>(static_cast<void *const>(destination.data()));
+	const uint32_t width = source.width();
+	const uint32_t height = source.height();
+
+	for (uint32_t y = 0; y < height; ++y)
+	{
+		for (uint32_t x = 0; x < width; ++x)
+		{
+			const uint32_t offsetSrc = x + (y * width);
+			const uint32_t offsetDst = (x + xOffset) + ((y + yOffset) * destination.width());
+			dstData[offsetDst] = compFunc(dstData[offsetDst], srcData[offsetSrc]);
+		}
+	}
+}
+
 #endif /*UTILITIES_HXX*/
