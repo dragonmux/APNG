@@ -224,8 +224,14 @@ public:
 	void check(const uint32_t pngWidth, const uint32_t pngHeight, const bool first = false);
 
 	uint32_t sequenceIndex() const noexcept { return _sequenceIndex; }
+	uint32_t width() const noexcept { return _width; }
+	uint32_t height() const noexcept { return _height; }
+	uint32_t xOffset() const noexcept { return _xOffset; }
+	uint32_t yOffset() const noexcept { return _yOffset; }
 	uint16_t delayN() const noexcept { return _delayN; }
 	uint16_t delayD() const noexcept { return _delayD; }
+	disposeOp_t disposeOp() const noexcept { return _disposeOp; }
+	blendOp_t blendOp() const noexcept { return _blendOp; }
 };
 
 enum class pixelFormat_t : uint8_t
