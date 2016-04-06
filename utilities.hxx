@@ -141,9 +141,9 @@ template<typename T, bool copyFunc(stream_t &, T &)> bool copyFrame(stream_t &st
 		{
 			if (!copyFunc(stream, data[x + (y * width)]))
 				return false;
+			// TODO: Make me properly handle the scanline filtering issue.
+			// filterFunc(data[x + (y * width)])
 		}
-
-		// TODO: Make me properly handle the scanline filtering issue.
 	}
 	return true;
 }
