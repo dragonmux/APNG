@@ -277,6 +277,7 @@ template<blendOp_t::_blendOp_t op> void compositFrame(const bitmap_t &source, bi
 void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chunkEnd, const uint32_t frameIndex,
 	const chunk_t &controlChunk)
 {
+	const pixelFormat_t format = pixelFormat();
 	fcTL_t fcTL = fcTL_t::reinterpret(controlChunk, frameIndex);
 	fcTL.check(_width, _height, frameIndex == 0);
 
@@ -297,7 +298,7 @@ void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chun
 
 	memoryStream_t memoryStream(data.get(), dataLength);
 	zlibStream_t frameData(memoryStream, zlibStream_t::inflate);
-	std::unique_ptr<bitmap_t> frame(new bitmap_t(_width, _height, pixelFormat()));
+	std::unique_ptr<bitmap_t> frame(new bitmap_t(_width, _height, format));
 	if (!processFrame(frameData, *frame))
 		throw invalidPNG_t();
 	_frames.emplace_back(std::make_pair(std::move(fcTL), std::move(frame)));
