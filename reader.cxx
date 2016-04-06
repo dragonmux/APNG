@@ -254,6 +254,26 @@ uint32_t apng_t::processDefaultFrame(const chunkList_t &chunks, const bool isSeq
 	return isSequenceFrame ? 1 : 0;
 }
 
+template<blendOp_t::_blendOp_t op> void compositFrame(const bitmap_t &source, bitmap_t &destination, pixelFormat_t pixelFormat) noexcept
+{
+	if (pixelFormat == pixelFormat_t::format24bppRGB)
+		compFrame(compRGB<pngRGB8_t, op>, source, destination, 0, 0);
+	else if (pixelFormat == pixelFormat_t::format48bppRGB)
+		compFrame(compRGB<pngRGB16_t, op>, source, destination, 0, 0);
+	/*else if (pixelFormat == pixelFormat_t::format32bppRGBA)
+		compFrame(compRGBA<pngRGBA8_t, op>, source, destination, 0, 0);
+	else if (pixelFormat == pixelFormat_t::format64bppRGBA)
+		compFrame(compRGBA<pngRGBA16_t, op>, source, destination, 0, 0);
+	else if (pixelFormat == pixelFormat_t::format8bppGrey)
+		compFrame<pngGrey8_t, compGrey<pngGrey8_t, compFunc>>(source, destination, 0, 0);
+	else if (pixelFormat == pixelFormat_t::format16bppGrey)
+		compFrame<pngGrey16_t, compGrey<pngGrey16_t, compFunc>>(source, destination, 0, 0);*/
+	/*else if (pixelFormat == pixelFormat_t::bps8)
+		compFrame<pngGreyA8_t, readGreyA>(source, destination, 0, 0);
+	else if (pixelFormat == pixelFormat_t::bps16)
+		compFrame<pngGreyA16_t, readGreyA>(source, destination, 0, 0);*/
+}
+
 void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chunkEnd, const uint32_t frameIndex,
 	const chunk_t &controlChunk)
 {
