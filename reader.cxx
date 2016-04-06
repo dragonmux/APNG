@@ -301,6 +301,21 @@ void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chun
 	std::unique_ptr<bitmap_t> frame(new bitmap_t(_width, _height, format));
 	if (!processFrame(frameData, *frame))
 		throw invalidPNG_t();
+
+	/*// This constructs a disposeOp_t::background initialised bitmap anyway.
+	std::unique_ptr<bitmap_t> frame(new bitmap_t(_width, _height, format));
+	if (fcTL.disposeOp() == disposeOp_t::none && frameIndex != 0)
+		compositFrame<blendOp_t::source>(*_frames.back().second, *frame, format);
+	else if (fcTL.disposeOp() == disposeOp_t::previous)
+	{
+		// TODO: make me loop back over all previous frames till disposeOp != previous.
+		// at this point, then copy the contents of that frame in blendOp_t::source mode.
+	}
+
+	if (fcTL.blendOp() == blendOp_t::source && fcTL.disposeOp() != disposeOp_t::background)
+		compositFrame<blendOp_t::source>(partialFrame, *frame, format);
+	else
+		compositFrame<blendOp_t::over>(partialFrame, *frame, format);*/
 	_frames.emplace_back(std::make_pair(std::move(fcTL), std::move(frame)));
 }
 
