@@ -172,6 +172,8 @@ template<typename T, blendOp_t::_blendOp_t op, typename U = T> U compRGB(const T
 	{ return {compOp<op>(pixelA.r, pixelB.r), compOp<op>(pixelA.g, pixelB.g), compOp<op>(pixelA.b, pixelB.b)}; }
 template<typename T, blendOp_t::_blendOp_t op> T compRGBA(const T pixelA, const T pixelB) noexcept
 	{ return {compRGB<T, op, typename T::pngRGBn_t>(pixelA, pixelB), compOp<op>(pixelA.a, pixelB.a)}; }
+template<typename T, blendOp_t::_blendOp_t op, typename U = T> U compGrey(const T pixelA, const T pixelB) noexcept
+	{ return {compOp<op>(pixelA.v, pixelB.v)}; }
 
 template<typename T> void compFrame(T compFunc(const T, const T), const bitmap_t &source, bitmap_t &destination,
 	const uint32_t xOffset, const uint32_t yOffset) noexcept
