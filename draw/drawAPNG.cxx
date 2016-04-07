@@ -140,25 +140,37 @@ void drawAPNG_t::animate() noexcept
 
 int main(int argc, char **argv) noexcept
 {
-	QApplication app(argc, argv);
-	drawAPNG_t window;
-	try
+	if (argc < 2)
 	{
-		fileStream_t file("loading_16.png", O_RDONLY | O_NOCTTY);
-		std::unique_ptr<apng_t> pngFile(new apng_t(file));
-		window.image(std::move(pngFile));
-	}
-	catch (invalidPNG_t &error)
-	{
-		printf("%s\n", error.what());
-		return 1;
-	}
-	catch (std::system_error &error)
-	{
-		printf("%s\n", error.what());
-		return 1;
+		printf("Please specify an image (or images) to display. No image specified.\n");
+		return 0;
 	}
 
-	window.show();
-	return app.exec();
+	QApplication app(argc, argv);
+	for (uint32_t fileIdx = 1; fileIdx < uint32_t(argc); ++fileIdx)
+	{
+		drawAPNG_t window;
+		try
+		{
+			fileStream_t file(argv[fileIdx], O_RDONLY | O_NOCTTY);
+			std::unique_ptr<apng_t> pngFile(new apng_t(file));
+			window.image(std::move(pngFile));
+		}
+		catch (invalidPNG_t &error)
+		{
+			printf("%s\n", error.what());
+			return 1;
+		}
+		catch (std::system_error &error)
+		{
+			printf("%s\n", error.what());
+			return 1;
+		}
+
+		window.show();
+		const int ret = app.exec();
+		if (ret != 0)
+			return ret;
+	}
+	return 0;
 }
