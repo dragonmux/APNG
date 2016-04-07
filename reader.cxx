@@ -312,7 +312,7 @@ void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chun
 		// at this point, then copy the contents of that frame in blendOp_t::source mode.
 	}
 
-	if (fcTL.blendOp() == blendOp_t::source && fcTL.disposeOp() != disposeOp_t::background)
+	if (fcTL.blendOp() == blendOp_t::source || fcTL.disposeOp() == disposeOp_t::background)
 		compositFrame<blendOp_t::source>(partialFrame, *frame, format);
 	else
 		compositFrame<blendOp_t::over>(partialFrame, *frame, format);
