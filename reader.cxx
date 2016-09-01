@@ -224,6 +224,7 @@ bool apng_t::processFrame(stream_t &stream, bitmap_t &frame)
 uint32_t apng_t::processDefaultFrame(const chunkList_t &chunks, const bool isSequenceFrame, const chunk_t &controlChunk)
 {
 	auto dataChunks = extract(chunks, isIDAT);
+	// TODO: convert me to chunkStream_t, as this can and should be solved in a streaming manner as this is a clooge at best.
 	size_t offs = 0, dataLength = 0;
 	for (const chunk_t *chunk : dataChunks)
 		dataLength += chunk->length();
@@ -235,6 +236,7 @@ uint32_t apng_t::processDefaultFrame(const chunkList_t &chunks, const bool isSeq
 	}
 
 	memoryStream_t memoryStream(data.get(), dataLength);
+	// chunkStream_t chunkStream(dataChunks);
 	zlibStream_t frameData(memoryStream, zlibStream_t::inflate);
 	_defaultFrame = new bitmap_t(_width, _height, pixelFormat());
 	if (isSequenceFrame)
