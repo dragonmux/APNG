@@ -10,7 +10,7 @@ This library can be built by running:
 
 ## Testing your build
 
-This library depends on [crunch](https://github.com/DX-MON/crunch) being installed and in your PATH.
+This library's tests depend on [crunch](https://github.com/DX-MON/crunch) being installed and in your PATH.
 Provided this is met, the tests can be built by running `make test`.
 To run the tests (and build them if they aren't), run `make check`.
 
