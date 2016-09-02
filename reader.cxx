@@ -44,12 +44,15 @@ public:
 private:
 	const chunkList_t _chunks;
 	size_t chunk, pos;
+	const bool isSequence;
+	size_t sequenceIndex;
 
-	size_t length() const noexcept { return _chunks[chunk]->length(); }
-	const uint8_t *data() const noexcept { return _chunks[chunk]->data(); }
+	size_t length() const noexcept { return _chunks[chunk]->length() - (isSequence ? 4 : 0); }
+	const uint8_t *data() const noexcept { return _chunks[chunk]->data() + (isSequence ? 4 : 0); }
 
 public:
-	chunkStream_t(const chunkList_t chunks, const bool sequence = false, const size_t seqIndex = 0) noexcept : _chunks(chunks), chunk(0), pos(0) { }
+	chunkStream_t(const chunkList_t chunks, const bool sequence = false, const size_t seqIndex = 0) noexcept : _chunks(chunks), chunk(0), pos(0),
+		isSequence(sequence), sequenceIndex(seqIndex) { }
 
 	bool read(void *const value, const size_t valueLen, size_t &actualLen) noexcept final override
 	{
@@ -63,6 +66,13 @@ public:
 			const size_t valueDelta = valueLen - actualLen;
 			const size_t chunkDelta = length() - pos;
 			const size_t amount = valueDelta > chunkDelta ? chunkDelta : valueDelta;
+			if (isSequence && pos == 0)
+			{
+				const uint32_t sequenceNum = *reinterpret_cast<const uint32_t *>(_chunks[chunk]->data());
+				if (swap32(sequenceNum) != ++sequenceIndex)
+					throw invalidPNG_t();
+			}
+
 			memcpy(buffer + actualLen, data() + pos, amount);
 			if (amount == chunkDelta)
 			{
@@ -313,23 +323,8 @@ void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chun
 	fcTL_t fcTL = fcTL_t::reinterpret(controlChunk, frameIndex);
 	fcTL.check(_width, _height, frameIndex == 0);
 
-	auto dataChunks = extract(chunkBegin, chunkEnd, isFDAT);
-	size_t offs = 0, dataLength = 0, sequenceIndex = fcTL.sequenceIndex();
-	for (const chunk_t *chunk : dataChunks)
-		dataLength += chunk->length() - 4;
-	std::unique_ptr<uint8_t[]> data(new uint8_t[dataLength]);
-	for (const chunk_t *chunk : dataChunks)
-	{
-		const uint8_t *const chunkData = chunk->data();
-		const uint32_t sequenceNum = *reinterpret_cast<const uint32_t *>(chunkData);
-		if (swap32(sequenceNum) != ++sequenceIndex)
-			throw invalidPNG_t();
-		memcpy(data.get() + offs, chunkData + 4, chunk->length() - 4);
-		offs += chunk->length();
-	}
-
-	memoryStream_t memoryStream(data.get(), dataLength);
-	zlibStream_t frameData(memoryStream, zlibStream_t::inflate);
+	chunkStream_t chunkStream(extract(chunkBegin, chunkEnd, isFDAT), true, fcTL.sequenceIndex());
+	zlibStream_t frameData(chunkStream, zlibStream_t::inflate);
 	bitmap_t partialFrame(fcTL.width(), fcTL.height(), format);
 	if (!processFrame(frameData, partialFrame))
 		throw invalidPNG_t();
