@@ -36,6 +36,49 @@ chunk_t chunk_t::loadChunk(stream_t &stream) noexcept
 	return chunk;
 }
 
+struct chunkStream_t final : public stream_t
+{
+public:
+	using chunkList_t = std::vector<const chunk_t *>;
+
+private:
+	const chunkList_t _chunks;
+	size_t chunk, pos;
+
+	size_t length() const noexcept { return _chunks[chunk]->length(); }
+	const uint8_t *data() const noexcept { return _chunks[chunk]->data(); }
+
+public:
+	chunkStream_t(const chunkList_t chunks, const bool sequence = false, const size_t seqIndex = 0) noexcept : _chunks(chunks), chunk(0), pos(0) { }
+
+	bool read(void *const value, const size_t valueLen, size_t &actualLen) noexcept final override
+	{
+		if (atEOF())
+			return false;
+
+		uint8_t *const buffer = reinterpret_cast<uint8_t *const>(value);
+		actualLen = 0;
+		while (actualLen < valueLen && !atEOF())
+		{
+			const size_t valueDelta = valueLen - actualLen;
+			const size_t chunkDelta = length() - pos;
+			const size_t amount = valueDelta > chunkDelta ? chunkDelta : valueDelta;
+			memcpy(buffer + actualLen, data() + pos, amount);
+			if (amount == chunkDelta)
+			{
+				++chunk;
+				pos = 0;
+			}
+			else
+				pos += amount;
+			actualLen += amount;
+		}
+		return true;
+	}
+
+	bool atEOF() const noexcept final override { return chunk == _chunks.size(); }
+};
+
 constexpr static const std::array<uint8_t, 8> pngSig =
 	{ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
 
@@ -223,21 +266,8 @@ bool apng_t::processFrame(stream_t &stream, bitmap_t &frame)
 
 uint32_t apng_t::processDefaultFrame(const chunkList_t &chunks, const bool isSequenceFrame, const chunk_t &controlChunk)
 {
-	auto dataChunks = extract(chunks, isIDAT);
-	// TODO: convert me to chunkStream_t, as this can and should be solved in a streaming manner as this is a clooge at best.
-	size_t offs = 0, dataLength = 0;
-	for (const chunk_t *chunk : dataChunks)
-		dataLength += chunk->length();
-	std::unique_ptr<uint8_t[]> data(new uint8_t[dataLength]);
-	for (const chunk_t *chunk : dataChunks)
-	{
-		memcpy(data.get() + offs, chunk->data(), chunk->length());
-		offs += chunk->length();
-	}
-
-	memoryStream_t memoryStream(data.get(), dataLength);
-	// chunkStream_t chunkStream(dataChunks);
-	zlibStream_t frameData(memoryStream, zlibStream_t::inflate);
+	chunkStream_t chunkStream(extract(chunks, isIDAT));
+	zlibStream_t frameData(chunkStream, zlibStream_t::inflate);
 	_defaultFrame = new bitmap_t(_width, _height, pixelFormat());
 	if (isSequenceFrame)
 	{
