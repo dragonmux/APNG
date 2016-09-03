@@ -98,6 +98,8 @@ template<typename T> struct pngRGB_t
 public:
 	T r; T g; T b;
 
+	constexpr pngRGB_t() noexcept : r(0), g(0), b(0) { }
+	constexpr pngRGB_t(const T _r, const T _g, const T _b) noexcept : r(_r), g(_g), b(_b) { }
 	pngRGB_t<T> operator +(const pngRGB_t<T> &pixel) const noexcept
 		{ return {T(r + pixel.r), T(g + pixel.g), T(b + pixel.b)}; }
 	pngRGB_t<T> operator -(const pngRGB_t<T> &pixel) const noexcept
@@ -126,8 +128,8 @@ public:
 	T a;
 
 	using pngRGBn_t = pngRGB_t<T>;
-	pngRGBA_t() = default;
-	pngRGBA_t(const pngRGBn_t rgb, const T _a) : pngRGBn_t(rgb), a(_a) { }
+	constexpr pngRGBA_t() noexcept : pngRGB_t<T>(), a(0) { }
+	constexpr pngRGBA_t(const pngRGBn_t rgb, const T _a) : pngRGBn_t(rgb), a(_a) { }
 
 	pngRGBA_t<T> operator +(const pngRGBA_t<T> &pixel) const noexcept
 		{ return {pngRGBn_t(*this) + pngRGBn_t(pixel), T(a + pixel.a)}; }
@@ -155,6 +157,8 @@ template<typename T> struct pngGrey_t
 public:
 	T v;
 
+	constexpr pngGrey_t() noexcept : v(0) { }
+	constexpr pngGrey_t(const T _v) noexcept : v(_v) { }
 	pngGrey_t<T> operator +(const pngGrey_t<T> &pixel) const noexcept
 		{ return {T(v + pixel.v)}; }
 	pngGrey_t<T> operator -(const pngGrey_t<T> &pixel) const noexcept
@@ -181,8 +185,8 @@ public:
 	T a;
 
 	using pngGreyN_t = pngGrey_t<T>;
-	pngGreyA_t() = default;
-	pngGreyA_t(const pngGreyN_t grey, const T _a) : pngGreyN_t(grey), a(_a) { }
+	constexpr pngGreyA_t() noexcept : pngGrey_t<T>(), a(0) { }
+	constexpr pngGreyA_t(const pngGreyN_t grey, const T _a) noexcept : pngGreyN_t(grey), a(_a) { }
 
 	pngGreyA_t<T> operator +(const pngGreyA_t<T> &pixel) const noexcept
 		{ return {pngGreyN_t(*this) + pngGreyN_t(pixel), T(a + pixel.a)}; }
