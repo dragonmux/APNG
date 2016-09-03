@@ -2,6 +2,7 @@
 #define UTILITIES_HXX
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "stream.hxx"
 
 struct bitmapRegion_t final
@@ -238,6 +239,52 @@ template<typename T> T filterAverage(const T *const data, const bitmapRegion_t &
 	return (up >> 1) + (left >> 1) + ((up & 1) & (left & 1));
 }
 
+uint8_t filterPaeth(const uint8_t a, const uint8_t b, const uint8_t c) noexcept
+{
+	const int16_t pred = a + b - c;
+	const uint16_t absA = abs(pred - a);
+	const uint16_t absB = abs(pred - b);
+	const uint16_t absC = abs(pred - c);
+
+	if (absA <= absB && absA <= absC)
+		return a;
+	else if (absB <= absC)
+		return b;
+	return c;
+}
+
+uint16_t filterPaeth(const uint16_t a, const uint16_t b, const uint16_t c) noexcept
+{
+	const uint16_t upper = filterPaeth(uint8_t(a >> 8), uint8_t(b >> 8), uint8_t(c >> 8));
+	const uint16_t lower = filterPaeth(uint8_t(a), uint8_t(b), uint8_t(c));
+	return (upper << 8) | lower;
+}
+
+template<typename T> pngRGB_t<T> filterPaeth(pngRGB_t<T> a, pngRGB_t<T> b, pngRGB_t<T> c) noexcept
+	{ return {filterPaeth(a.r, b.r, c.r), filterPaeth(a.g, b.g, c.g), filterPaeth(a.b, b.b, c.b)}; }
+template<typename T> pngGrey_t<T> filterPaeth(pngGrey_t<T> a, pngGrey_t<T> b, pngGrey_t<T> c) noexcept
+	{ return {filterPaeth(a.v, b.v, c.v)}; }
+
+template<typename T> pngRGBA_t<T> filterPaeth(pngRGBA_t<T> a, pngRGBA_t<T> b, pngRGBA_t<T> c) noexcept
+{
+	using pngRGBn_t = typename pngRGBA_t<T>::pngRGBn_t;
+	return {filterPaeth(pngRGBn_t(a), pngRGBn_t(b), pngRGBn_t(c)), filterPaeth(a.a, b.a, c.a)};
+}
+
+template<typename T> pngGreyA_t<T> filterPaeth(pngGreyA_t<T> a, pngGreyA_t<T> b, pngGreyA_t<T> c) noexcept
+{
+	using pngGreyN_t = typename pngGreyA_t<T>::pngGreyN_t;
+	return {filterPaeth(pngGreyN_t(a), pngGreyN_t(b), pngGreyN_t(c)), filterPaeth(a.a, b.a, c.a)};
+}
+
+template<typename T> T filterPaeth(const T *const data, const bitmapRegion_t &frame, const uint32_t x, const uint32_t y) noexcept
+{
+	const T left = data[x + (y * frame.width()) - 1];
+	const T up = data[x + ((y - 1) * frame.width())];
+	const T upLeft = data[x + ((y - 1) * frame.width()) - 1];
+	return filterPaeth(left, up, upLeft);
+}
+
 template<typename T> filter_t<T> selectFilter(const filterTypes_t filter) noexcept
 {
 	switch (filter)
@@ -248,6 +295,8 @@ template<typename T> filter_t<T> selectFilter(const filterTypes_t filter) noexce
 			return filterUp<T>;
 		case filterTypes_t::average:
 			return filterAverage<T>;
+		case filterTypes_t::paeth:
+			return filterPaeth<T>;
 		case filterTypes_t::none:
 		default:
 			return nullptr;
