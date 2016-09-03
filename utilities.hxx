@@ -107,6 +107,16 @@ public:
 		{ return {T(r & mask), T(g & mask), T(b & mask)}; }
 	pngRGB_t<T> operator &(const pngRGB_t<T> &mask) const noexcept
 		{ return {T(r & mask.r), T(g & mask.g), T(b & mask.b)}; }
+	pngRGB_t<uint8_t> &operator +=(const pngRGB_t<uint8_t> &pixel) noexcept
+		{ return r += pixel.r, g += pixel.g, b += pixel.b, *this; }
+
+	pngRGB_t<uint16_t> &operator +=(const pngRGB_t<uint16_t> &pixel) noexcept
+	{
+		r = (uint8_t((r >> 8) + (pixel.r >> 8)) << 8) | uint8_t(r + pixel.r);
+		g = (uint8_t((g >> 8) + (pixel.g >> 8)) << 8) | uint8_t(g + pixel.g);
+		b = (uint8_t((b >> 8) + (pixel.b >> 8)) << 8) | uint8_t(b + pixel.b);
+		return *this;
+	}
 };
 
 template<typename T> struct pngRGBA_t final : public pngRGB_t<T>
@@ -126,6 +136,15 @@ public:
 		{ return {pngRGBn_t(*this) & mask, T(a & mask)}; }
 	pngRGBA_t<T> operator &(const pngRGBA_t<T> &mask) const noexcept
 		{ return {pngRGBn_t(*this) & pngRGBn_t(mask), T(a & mask.a)}; }
+	pngRGBA_t<uint8_t> &operator +=(const pngRGBA_t<uint8_t> &pixel) noexcept
+		{ return *static_cast<pngRGBn_t *>(this) += pngRGBn_t(pixel), a += pixel.a, *this; }
+
+	pngRGBA_t<uint16_t> &operator +=(const pngRGBA_t<uint16_t> &pixel) noexcept
+	{
+		*static_cast<pngRGBn_t *>(this) += pngRGBn_t(pixel);
+		a = (uint8_t((a >> 8) + (pixel.a >> 8)) << 8) | uint8_t(a + pixel.a);
+		return *this;
+	}
 };
 
 template<typename T> struct pngGrey_t
@@ -141,6 +160,14 @@ public:
 		{ return {T(v & mask)}; }
 	pngGrey_t<T> operator &(const pngGrey_t<T> &mask) const noexcept
 		{ return {T(v & mask.v)}; }
+	pngGrey_t<uint8_t> &operator +=(const pngGrey_t<uint8_t> &pixel) noexcept
+		{ return v += pixel.v, *this; }
+
+	pngGrey_t<uint16_t> &operator +=(const pngGrey_t<uint16_t> &pixel) noexcept
+	{
+		v = (uint8_t((v >> 8) + (pixel.v >> 8)) << 8) | uint8_t(v + pixel.v);
+		return *this;
+	}
 };
 
 template<typename T> struct pngGreyA_t final : public pngGrey_t<T>
@@ -160,6 +187,15 @@ public:
 		{ return {pngGreyN_t(*this) & mask, T(a & mask)}; }
 	pngGreyA_t<T> operator &(const pngGreyA_t<T> &mask) const noexcept
 		{ return {pngGreyN_t(*this) & pngGreyN_t(mask), T(a & mask.a)}; }
+	pngGreyA_t<uint8_t> &operator +=(const pngGreyA_t<uint8_t> &pixel) noexcept
+		{ return *static_cast<pngGreyN_t *>(this) += pngGreyN_t(pixel), a += pixel.a, *this; }
+
+	pngGreyA_t<uint16_t> &operator +=(const pngGreyA_t<uint16_t> &pixel) noexcept
+	{
+		*static_cast<pngGreyN_t *>(this) += pngGreyN_t(pixel);
+		a = (uint8_t((a >> 8) + (pixel.a >> 8)) << 8) | uint8_t(a + pixel.a);
+		return *this;
+	}
 };
 
 using pngRGB8_t = pngRGB_t<uint8_t>;
