@@ -222,20 +222,32 @@ template<typename T> bool readGrey(stream_t &stream, T &pixel) noexcept
 template<typename T> bool readGreyA(stream_t &stream, T &pixel) noexcept
 	{ return readGrey(stream, pixel) && stream.read(pixel.a); }
 
-template<typename T> auto filterFunc_t() -> T (*)(const T &, const T &) noexcept;
+template<typename T> auto filterFunc_t() -> T (*)(const T *const, const bitmapRegion_t &, const uint32_t, const uint32_t) noexcept;
 template<typename T> using filter_t = decltype(filterFunc_t<T>());
 enum class filterTypes_t : uint8_t { none, sub, up, average, paeth };
 
-template<typename T> T filterSub(const T &pixel, const T &oldPixel) noexcept { return pixel + oldPixel; }
+template<typename T> T filterSub(const T *const data, const bitmapRegion_t &frame, const uint32_t x, const uint32_t y) noexcept
+	{ return data[x + (y * frame.width()) - 1]; }
+template<typename T> T filterUp(const T *const data, const bitmapRegion_t &frame, const uint32_t x, const uint32_t y) noexcept
+	{ return data[x + ((y - 1) * frame.width())]; }
+
+template<typename T> T filterAverage(const T *const data, const bitmapRegion_t &frame, const uint32_t x, const uint32_t y) noexcept
+{
+	const T left = data[x + (y * frame.width()) - 1];
+	const T up = data[x + ((y - 1) * frame.width())];
+	return (up >> 1) + (left >> 1) + ((up & 1) & (left & 1));
+}
 
 template<typename T> filter_t<T> selectFilter(const filterTypes_t filter) noexcept
 {
 	switch (filter)
 	{
 		case filterTypes_t::sub:
-		case filterTypes_t::up:
-		case filterTypes_t::average:
 			return filterSub<T>;
+		case filterTypes_t::up:
+			return filterUp<T>;
+		case filterTypes_t::average:
+			return filterAverage<T>;
 		case filterTypes_t::none:
 		default:
 			return nullptr;
@@ -260,20 +272,7 @@ template<typename T, bool copyFunc(stream_t &, T &)> bool copyFrame(stream_t &st
 			if (!copyFunc(stream, data[x + (y * width)]))
 				return false;
 			if (filterFunc)
-			{
-				T prevPixel;
-				if (filter == filterTypes_t::sub)
-					prevPixel = data[x + (y * width) - 1];
-				else if (filter == filterTypes_t::up)
-					prevPixel = data[x + ((y - 1) * width)];
-				else if (filter == filterTypes_t::average)
-				{
-					const T up = data[x + ((y - 1) * width)];
-					const T left = data[x + (y * width) - 1];
-					prevPixel = (up >> 1) + (left >> 1) + ((up & 1) & (left & 1));
-				}
-				data[x + (y * width)] = filterFunc(data[x + (y * width)], prevPixel);
-			}
+				data[x + (y * width)] += filterFunc(data, frame, x, y);
 		}
 	}
 	return true;
