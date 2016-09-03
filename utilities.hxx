@@ -180,6 +180,26 @@ template<typename T> bool readGrey(stream_t &stream, T &pixel) noexcept
 template<typename T> bool readGreyA(stream_t &stream, T &pixel) noexcept
 	{ return readGrey(stream, pixel) && stream.read(pixel.a); }
 
+template<typename T> auto filterFunc_t() -> T (*)(const T &, const T &) noexcept;
+template<typename T> using filter_t = decltype(filterFunc_t<T>());
+enum class filterTypes_t : uint8_t { none, sub, up, average, paeth };
+
+template<typename T> T filterSub(const T &pixel, const T &oldPixel) noexcept { return pixel + oldPixel; }
+
+template<typename T> filter_t<T> selectFilter(const filterTypes_t filter) noexcept
+{
+	switch (filter)
+	{
+		case filterTypes_t::sub:
+		case filterTypes_t::up:
+		case filterTypes_t::average:
+			return filterSub<T>;
+		case filterTypes_t::none:
+		default:
+			return nullptr;
+	}
+}
+
 template<typename T, bool copyFunc(stream_t &, T &)> bool copyFrame(stream_t &stream, void *const dataPtr, const bitmapRegion_t frame) noexcept
 {
 	T *const data = static_cast<T *const>(dataPtr);
