@@ -75,6 +75,8 @@ void drawAPNG_t::image(std::unique_ptr<apng_t> &&image) noexcept
 {
 	if (!image)
 		return;
+	if (!isMaximized())
+		resize(image->width(), image->height());
 	apng.swap(image);
 	for (const auto &frame : apng->frames())
 	{
