@@ -94,9 +94,19 @@ template<typename T> bool isAfter(const T *a, const T *b) noexcept
 
 template<typename T> struct pngRGB_t
 {
+public:
 	T r;
 	T g;
 	T b;
+
+	pngRGB_t<T> operator +(const pngRGB_t<T> &pixel) const noexcept
+		{ return {T(r + pixel.r), T(g + pixel.g), T(b + pixel.b)}; }
+	pngRGB_t<T> operator >>(const uint8_t amount) const noexcept
+		{ return {T(r >> amount), T(g >> amount), T(b >> amount)}; }
+	pngRGB_t<T> operator &(const T mask) const noexcept
+		{ return {T(r & mask), T(g & mask), T(b & mask)}; }
+	pngRGB_t<T> operator &(const pngRGB_t<T> &mask) const noexcept
+		{ return {T(r & mask.r), T(g & mask.g), T(b & mask.b)}; }
 };
 
 template<typename T> struct pngRGBA_t final : public pngRGB_t<T>
@@ -106,14 +116,51 @@ public:
 
 	using pngRGBn_t = pngRGB_t<T>;
 	pngRGBA_t() = default;
-	pngRGBA_t(pngRGBn_t rgb, T _a) : pngRGBn_t(rgb), a(_a) { }
+	pngRGBA_t(const pngRGBn_t rgb, const T _a) : pngRGBn_t(rgb), a(_a) { }
+
+	pngRGBA_t<T> operator +(const pngRGBA_t<T> &pixel) const noexcept
+		{ return {pngRGBn_t(*this) + pngRGBn_t(pixel), T(a + pixel.a)}; }
+	pngRGBA_t<T> operator >>(const uint8_t amount) const noexcept
+		{ return {pngRGBn_t(*this) >> amount, T(a >> amount)}; }
+	pngRGBA_t<T> operator &(const T mask) const noexcept
+		{ return {pngRGBn_t(*this) & mask, T(a & mask)}; }
+	pngRGBA_t<T> operator &(const pngRGBA_t<T> &mask) const noexcept
+		{ return {pngRGBn_t(*this) & pngRGBn_t(mask), T(a & mask.a)}; }
 };
 
 template<typename T> struct pngGrey_t
-	{ T v; };
+{
+public:
+	T v;
+
+	pngGrey_t<T> operator +(const pngGrey_t<T> &pixel) const noexcept
+		{ return {T(v + pixel.v)}; }
+	pngGrey_t<T> operator >>(const uint8_t amount) const noexcept
+		{ return {T(v >> amount)}; }
+	pngGrey_t<T> operator &(const T mask) const noexcept
+		{ return {T(v & mask)}; }
+	pngGrey_t<T> operator &(const pngGrey_t<T> &mask) const noexcept
+		{ return {T(v & mask.v)}; }
+};
 
 template<typename T> struct pngGreyA_t final : public pngGrey_t<T>
-	{ T a; };
+{
+public:
+	T a;
+
+	using pngGreyN_t = pngGrey_t<T>;
+	pngGreyA_t() = default;
+	pngGreyA_t(const pngGreyN_t grey, const T _a) : pngGreyN_t(grey), a(_a) { }
+
+	pngGreyA_t<T> operator +(const pngGreyA_t<T> &pixel) const noexcept
+		{ return {pngGreyN_t(*this) + pngGreyN_t(pixel), T(a + pixel.a)}; }
+	pngGreyA_t<T> operator >>(const uint8_t amount) const noexcept
+		{ return {pngGreyN_t(*this) >> amount, T(a >> amount)}; }
+	pngGreyA_t<T> operator &(const T mask) const noexcept
+		{ return {pngGreyN_t(*this) & mask, T(a & mask)}; }
+	pngGreyA_t<T> operator &(const pngGreyA_t<T> &mask) const noexcept
+		{ return {pngGreyN_t(*this) & pngGreyN_t(mask), T(a & mask.a)}; }
+};
 
 using pngRGB8_t = pngRGB_t<uint8_t>;
 using pngRGB16_t = pngRGB_t<uint16_t>;
