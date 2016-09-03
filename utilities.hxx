@@ -207,16 +207,31 @@ template<typename T, bool copyFunc(stream_t &, T &)> bool copyFrame(stream_t &st
 	const uint32_t height = frame.height();
 	for (uint32_t y = 0; y < height; ++y)
 	{
-		uint8_t filter;
+		filterTypes_t filter;
 		if (!stream.read(filter))
 			return false;
+		// This treats unknown or invalid filter types as filterTypes_t::none.
+		filter_t<T> filterFunc = selectFilter<T>(filter);
 
 		for (uint32_t x = 0; x < width; ++x)
 		{
 			if (!copyFunc(stream, data[x + (y * width)]))
 				return false;
-			// TODO: Make me properly handle the scanline filtering issue.
-			// filterFunc(data[x + (y * width)])
+			if (filterFunc)
+			{
+				T prevPixel;
+				if (filter == filterTypes_t::sub)
+					prevPixel = data[x + (y * width) - 1];
+				else if (filter == filterTypes_t::up)
+					prevPixel = data[x + ((y - 1) * width)];
+				else if (filter == filterTypes_t::average)
+				{
+					const T up = data[x + ((y - 1) * width)];
+					const T left = data[x + (y * width) - 1];
+					prevPixel = (up >> 1) + (left >> 1) + ((up & 1) & (left & 1));
+				}
+				data[x + (y * width)] = filterFunc(data[x + (y * width)], prevPixel);
+			}
 		}
 	}
 	return true;
