@@ -111,7 +111,7 @@ bool isIEND(const chunk_t &chunk) noexcept { return chunk.type() == typeIEND; }
 bool isFDAT(const chunk_t &chunk) noexcept { return chunk.type() == typeFDAT; }
 
 bitmap_t::bitmap_t(const uint32_t width, const uint32_t height, const pixelFormat_t format) :
-	_width(width), _height(height), _format(format)
+	_width(width), _height(height), _format(format), transValueValid(false)
 {
 	uint8_t bytes;
 	if (_format == pixelFormat_t::format8bppGrey)

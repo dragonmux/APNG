@@ -346,7 +346,7 @@ template<typename T> T compOver(const T a, const T b, const T alpha) noexcept
 {
 	constexpr const T max = std::numeric_limits<T>::max();
 	constexpr const uint8_t bits = std::numeric_limits<T>::digits;
-	return T((alpha * b) >> bits) + T(((max - alpha) * a) >> bits);
+	return T(((max - alpha + 1) * a) >> bits) + T(((alpha + 1) * b) >> bits);
 }
 
 template<blendOp_t::_blendOp_t op, typename T> T compOp(const T a, const T b, const T alpha) noexcept
