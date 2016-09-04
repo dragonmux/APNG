@@ -296,24 +296,26 @@ uint32_t apng_t::processDefaultFrame(const chunkList_t &chunks, const bool isSeq
 	return isSequenceFrame ? 1 : 0;
 }
 
-template<blendOp_t::_blendOp_t op> void compositFrame(const bitmap_t &source, bitmap_t &destination, pixelFormat_t pixelFormat) noexcept
+template<blendOp_t::_blendOp_t op> void compositFrame(const bitmap_t &source, bitmap_t &destination, const pixelFormat_t pixelFormat, const fcTL_t &fcTL) noexcept
 {
+	const uint32_t xOffset = fcTL.xOffset();
+	const uint32_t yOffset = fcTL.yOffset();
 	if (pixelFormat == pixelFormat_t::format24bppRGB)
-		compFrame(compRGB<pngRGB8_t, op>, source, destination, 0, 0);
+		compFrame(compRGB<pngRGB8_t, op>, source, destination, xOffset, yOffset);
 	else if (pixelFormat == pixelFormat_t::format48bppRGB)
-		compFrame(compRGB<pngRGB16_t, op>, source, destination, 0, 0);
+		compFrame(compRGB<pngRGB16_t, op>, source, destination, xOffset, yOffset);
 	else if (pixelFormat == pixelFormat_t::format32bppRGBA)
-		compFrame(compRGBA<pngRGBA8_t, op>, source, destination, 0, 0);
+		compFrame(compRGBA<pngRGBA8_t, op>, source, destination, xOffset, yOffset);
 	else if (pixelFormat == pixelFormat_t::format64bppRGBA)
-		compFrame(compRGBA<pngRGBA16_t, op>, source, destination, 0, 0);
+		compFrame(compRGBA<pngRGBA16_t, op>, source, destination, xOffset, yOffset);
 	else if (pixelFormat == pixelFormat_t::format8bppGrey)
-		compFrame(compGrey<pngGrey8_t, op>, source, destination, 0, 0);
+		compFrame(compGrey<pngGrey8_t, op>, source, destination, xOffset, yOffset);
 	else if (pixelFormat == pixelFormat_t::format16bppGrey)
-		compFrame(compGrey<pngGrey16_t, op>, source, destination, 0, 0);
+		compFrame(compGrey<pngGrey16_t, op>, source, destination, xOffset, yOffset);
 	/*else if (pixelFormat == pixelFormat_t::bps8)
-		compFrame<pngGreyA8_t, readGreyA>(source, destination, 0, 0);
+		compFrame<pngGreyA8_t, readGreyA>(source, destination, xOffset, yOffset);
 	else if (pixelFormat == pixelFormat_t::bps16)
-		compFrame<pngGreyA16_t, readGreyA>(source, destination, 0, 0);*/
+		compFrame<pngGreyA16_t, readGreyA>(source, destination, xOffset, yOffset);*/
 }
 
 void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chunkEnd, const uint32_t frameIndex,
@@ -332,7 +334,7 @@ void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chun
 	// This constructs a disposeOp_t::background initialised bitmap anyway.
 	std::unique_ptr<bitmap_t> frame(new bitmap_t(_width, _height, format));
 	if (fcTL.disposeOp() == disposeOp_t::none && frameIndex != 0)
-		compositFrame<blendOp_t::source>(*_frames.back().second, *frame, format);
+		compositFrame<blendOp_t::source>(*_frames.back().second, *frame, format, fcTL_t());
 	else if (fcTL.disposeOp() == disposeOp_t::previous)
 	{
 		// TODO: make me loop back over all previous frames till disposeOp != previous.
@@ -340,9 +342,9 @@ void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chun
 	}
 
 	if (fcTL.blendOp() == blendOp_t::source || fcTL.disposeOp() == disposeOp_t::background)
-		compositFrame<blendOp_t::source>(partialFrame, *frame, format);
+		compositFrame<blendOp_t::source>(partialFrame, *frame, format, fcTL);
 	else
-		compositFrame<blendOp_t::over>(partialFrame, *frame, format);
+		compositFrame<blendOp_t::over>(partialFrame, *frame, format, fcTL);
 	_frames.emplace_back(std::make_pair(std::move(fcTL), std::move(frame)));
 }
 

@@ -203,6 +203,8 @@ private:
 	fcTL_t &operator =(const fcTL_t &) = delete;
 
 public:
+	constexpr fcTL_t() noexcept : _frame(0), _sequenceIndex(0), _width(0), _height(0), _xOffset(0),
+		_yOffset(0), _delayN(0), _delayD(0), _disposeOp(), _blendOp() { }
 	fcTL_t(fcTL_t &&fcTL) noexcept : _frame(fcTL._frame), _sequenceIndex(fcTL._sequenceIndex),
 		_width(fcTL._width), _height(fcTL._height), _xOffset(fcTL._xOffset), _yOffset(fcTL._yOffset),
 		_delayN(fcTL._delayN), _delayD(fcTL._delayD), _disposeOp(fcTL._disposeOp), _blendOp(fcTL._blendOp) { }
