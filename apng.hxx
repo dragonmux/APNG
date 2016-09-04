@@ -240,6 +240,8 @@ enum class pixelFormat_t : uint8_t
 {
 	format8bppGrey,
 	format16bppGrey,
+	format8bppGreyA,
+	format16bppGreyA,
 	format24bppRGB,
 	format32bppRGBA,
 	format48bppRGB,

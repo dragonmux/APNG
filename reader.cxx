@@ -228,12 +228,19 @@ pixelFormat_t apng_t::pixelFormat() const
 	}
 	else if (_colourType == colourType_t::palette)
 		return pixelFormat_t::format24bppRGB;
-	else if (_colourType == colourType_t::greyscale || _colourType == colourType_t::greyscaleAlpha)
+	else if (_colourType == colourType_t::greyscale)
 	{
 		if (_bitDepth == bitDepth_t::bps8 || _bitDepth == bitDepth_t::bps4 || _bitDepth == bitDepth_t::bps2 || _bitDepth == bitDepth_t::bps1)
 			return pixelFormat_t::format8bppGrey;
 		else if (_bitDepth == bitDepth_t::bps16)
 			return pixelFormat_t::format16bppGrey;
+	}
+	else if (_colourType == colourType_t::greyscaleAlpha)
+	{
+		if (_bitDepth == bitDepth_t::bps8 || _bitDepth == bitDepth_t::bps4 || _bitDepth == bitDepth_t::bps2 || _bitDepth == bitDepth_t::bps1)
+			return pixelFormat_t::format8bppGreyA;
+		else if (_bitDepth == bitDepth_t::bps16)
+			return pixelFormat_t::format16bppGreyA;
 	}
 	throw invalidPNG_t();
 }
