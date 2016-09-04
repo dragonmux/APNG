@@ -377,8 +377,16 @@ void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chun
 		compositFrame<blendOp_t::source>(*_frames.back().second, *frame, format, fcTL_t());
 	else if (fcTL.disposeOp() == disposeOp_t::previous)
 	{
-		// TODO: make me loop back over all previous frames till disposeOp != previous.
-		// at this point, then copy the contents of that frame in blendOp_t::source mode.
+		auto source = _frames.end();
+		// Only if there are frames to backtrack over.
+		if (source != _frames.begin())
+		{
+			// Find the first frame that doesn't have disposeOp_t::previous, or is simply the first frame.
+			while (--source != _frames.begin() && source->first.disposeOp() == disposeOp_t::previous)
+				continue;
+			// And composit it in as the basis of this frame.
+			compositFrame<blendOp_t::source>(*source->second, *frame, format, fcTL_t());
+		}
 	}
 
 	if (fcTL.blendOp() == blendOp_t::source || fcTL.disposeOp() == disposeOp_t::background)
