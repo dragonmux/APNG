@@ -402,7 +402,10 @@ template<typename T> void compFrame(T compFunc(const T, const T, const typename 
 		{
 			const uint32_t offsetSrc = x + (y * width);
 			const uint32_t offsetDst = (x + xOffset) + ((y + yOffset) * destination.width());
-			dstData[offsetDst] = compFunc(dstData[offsetDst], srcData[offsetSrc], max);
+			if (source.hasTransparency())
+				dstData[offsetDst] = compFunc(dstData[offsetDst], srcData[offsetSrc], trans == srcData[offsetSrc] ? 0 : max);
+			else
+				dstData[offsetDst] = compFunc(dstData[offsetDst], srcData[offsetSrc], max);
 		}
 	}
 }
