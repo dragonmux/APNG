@@ -319,10 +319,10 @@ template<blendOp_t::_blendOp_t op> void compositFrame(const bitmap_t &source, bi
 		compFrame(compGrey<pngGrey8_t, op>, source, destination, xOffset, yOffset);
 	else if (pixelFormat == pixelFormat_t::format16bppGrey)
 		compFrame(compGrey<pngGrey16_t, op>, source, destination, xOffset, yOffset);
-	/*else if (pixelFormat == pixelFormat_t::bps8)
-		compFrame<pngGreyA8_t, readGreyA>(source, destination, xOffset, yOffset);
-	else if (pixelFormat == pixelFormat_t::bps16)
-		compFrame<pngGreyA16_t, readGreyA>(source, destination, xOffset, yOffset);*/
+	else if (pixelFormat == pixelFormat_t::format8bppGreyA)
+		compFrame(compGreyA<pngGreyA8_t, op>, source, destination, xOffset, yOffset);
+	else if (pixelFormat == pixelFormat_t::format16bppGreyA)
+		compFrame(compGreyA<pngGreyA16_t, op>, source, destination, xOffset, yOffset);
 }
 
 void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chunkEnd, const uint32_t frameIndex,
