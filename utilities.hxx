@@ -242,7 +242,7 @@ template<typename T> T filterAverage(const T *const data, const bitmapRegion_t &
 {
 	const T left = safeIndex(data, x - 1, y * frame.width());
 	const T up = safeIndex(data, x, (y - 1) * frame.width());
-	return (up >> 1) + (left >> 1) + ((up & 1) & (left & 1));
+	return (up >> 1) + (left >> 1) + ((up & left) & 1);
 }
 
 uint8_t filterPaeth(const uint8_t a, const uint8_t b, const uint8_t c) noexcept
