@@ -94,6 +94,7 @@ constexpr static const std::array<uint8_t, 8> pngSig =
 
 constexpr static const chunkType_t typeIHDR{'I', 'H', 'D', 'R'};
 constexpr static const chunkType_t typePLTE{'P', 'L', 'T', 'E'};
+constexpr static const chunkType_t typeTRNS{'t', 'R', 'N', 'S'};
 constexpr static const chunkType_t typeACTL{'a', 'c', 'T', 'L'};
 constexpr static const chunkType_t typeIDAT{'I', 'D', 'A', 'T'};
 constexpr static const chunkType_t typeFCTL{'f', 'c', 'T', 'L'};
@@ -102,6 +103,7 @@ constexpr static const chunkType_t typeIEND{'I', 'E', 'N', 'D'};
 
 bool isIHDR(const chunk_t &chunk) noexcept { return chunk.type() == typeIHDR; }
 bool isPLTE(const chunk_t &chunk) noexcept { return chunk.type() == typePLTE; }
+bool isTRNS(const chunk_t &chunk) noexcept { return chunk.type() == typeTRNS; }
 bool isACTL(const chunk_t &chunk) noexcept { return chunk.type() == typeACTL; }
 bool isIDAT(const chunk_t &chunk) noexcept { return chunk.type() == typeIDAT; }
 bool isFCTL(const chunk_t &chunk) noexcept { return chunk.type() == typeFCTL; }
@@ -167,6 +169,35 @@ apng_t::apng_t(stream_t &stream)
 	}
 	else if (contains(chunks, isPLTE))
 		throw invalidPNG_t();
+
+	if (_colourType == colourType_t::rgb || _colourType == colourType_t::greyscale)
+	{
+		auto transChunks = extract(chunks, isTRNS);
+		if (transChunks.size() > 1)
+			throw invalidPNG_t();
+		if (transChunks.size())
+		{
+			const chunk_t *trans = transChunks[0];
+			if ((_colourType == colourType_t::rgb && trans->length() != 6) ||
+				(_colourType == colourType_t::greyscale && trans->length() != 2))
+				throw invalidPNG_t();
+			if (_colourType == colourType_t::rgb)
+			{
+				const pngRGB16_t colour = *reinterpret_cast<const pngRGB16_t *const>(trans->data());
+				transColour[0] = swap16(colour.r);
+				transColour[1] = swap16(colour.g);
+				transColour[2] = swap16(colour.b);
+			}
+			else
+			{
+				const pngGrey16_t colour = *reinterpret_cast<const pngGrey16_t *const>(trans->data());
+				transColour[0] = colour.v;
+			}
+			transColourValid = true;
+		}
+		else
+			transColourValid = false;
+	}
 
 	const chunk_t &end = chunks.back();
 	chunks.pop_back();
