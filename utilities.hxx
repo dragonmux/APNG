@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <limits>
 #include "stream.hxx"
 
 struct bitmapRegion_t final
@@ -98,8 +99,10 @@ template<typename T> struct pngRGB_t
 public:
 	T r; T g; T b;
 
+	using type = T;
 	constexpr pngRGB_t() noexcept : r(0), g(0), b(0) { }
 	constexpr pngRGB_t(const T _r, const T _g, const T _b) noexcept : r(_r), g(_g), b(_b) { }
+	bool operator ==(const pngRGB_t<T> &pixel) const noexcept { return r == pixel.r && g == pixel.g && b == pixel.b; }
 	pngRGB_t<T> operator +(const pngRGB_t<T> &pixel) const noexcept
 		{ return {T(r + pixel.r), T(g + pixel.g), T(b + pixel.b)}; }
 	pngRGB_t<T> operator -(const pngRGB_t<T> &pixel) const noexcept
@@ -127,10 +130,11 @@ template<typename T> struct pngRGBA_t final : public pngRGB_t<T>
 public:
 	T a;
 
+	using type = T;
 	using pngRGBn_t = pngRGB_t<T>;
 	constexpr pngRGBA_t() noexcept : pngRGB_t<T>(), a(0) { }
 	constexpr pngRGBA_t(const pngRGBn_t rgb, const T _a) : pngRGBn_t(rgb), a(_a) { }
-
+	bool operator ==(const pngRGBA_t<T> &pixel) const noexcept { return pngRGBn_t(*this) == pngRGBn_t(pixel) && a == pixel.a; }
 	pngRGBA_t<T> operator +(const pngRGBA_t<T> &pixel) const noexcept
 		{ return {pngRGBn_t(*this) + pngRGBn_t(pixel), T(a + pixel.a)}; }
 	pngRGBA_t<T> operator -(const pngRGBA_t<T> &pixel) const noexcept
@@ -157,8 +161,10 @@ template<typename T> struct pngGrey_t
 public:
 	T v;
 
+	using type = T;
 	constexpr pngGrey_t() noexcept : v(0) { }
 	constexpr pngGrey_t(const T _v) noexcept : v(_v) { }
+	bool operator ==(const pngGrey_t &pixel) const noexcept { return v == pixel.v; }
 	pngGrey_t<T> operator +(const pngGrey_t<T> &pixel) const noexcept
 		{ return {T(v + pixel.v)}; }
 	pngGrey_t<T> operator -(const pngGrey_t<T> &pixel) const noexcept
@@ -184,10 +190,11 @@ template<typename T> struct pngGreyA_t final : public pngGrey_t<T>
 public:
 	T a;
 
+	using type = T;
 	using pngGreyN_t = pngGrey_t<T>;
 	constexpr pngGreyA_t() noexcept : pngGrey_t<T>(), a(0) { }
 	constexpr pngGreyA_t(const pngGreyN_t grey, const T _a) noexcept : pngGreyN_t(grey), a(_a) { }
-
+	bool operator ==(const pngGreyA_t<T> &pixel) const noexcept { return pngGreyN_t(*this) == pngGreyN_t(pixel) && a == pixel.a; }
 	pngGreyA_t<T> operator +(const pngGreyA_t<T> &pixel) const noexcept
 		{ return {pngGreyN_t(*this) + pngGreyN_t(pixel), T(a + pixel.a)}; }
 	pngGreyA_t<T> operator -(const pngGreyA_t<T> &pixel) const noexcept
@@ -355,6 +362,16 @@ template<typename T, blendOp_t::_blendOp_t op, typename U = T> U compGrey(const 
 template<typename T, blendOp_t::_blendOp_t op> T compGreyA(const T pixelA, const T pixelB) noexcept
 	{ return {compGrey<T, op, typename T::pngGreyN_t>(pixelA, pixelB), compOp<op>(pixelA.a, pixelB.a)}; }
 
+template<typename T> pngRGB_t<T> pixelFromTransRGB(const uint16_t *const transValue) noexcept
+	{ return pngRGB_t<T>(transValue[0], transValue[1], transValue[2]); }
+template<typename T> pngGrey_t<T> pixelFromTransGrey(const uint16_t transValue) noexcept
+	{ return pngGrey_t<T>(transValue); }
+
+template<> pngRGB8_t bitmap_t::transparent<pngRGB8_t>() const noexcept { return pixelFromTransRGB<uint8_t>(transValue); }
+template<> pngRGB16_t bitmap_t::transparent<pngRGB16_t>() const noexcept { return pixelFromTransRGB<uint16_t>(transValue); }
+template<> pngGrey8_t bitmap_t::transparent<pngGrey8_t>() const noexcept { return pixelFromTransGrey<uint8_t>(transValue[0]); }
+template<> pngGrey16_t bitmap_t::transparent<pngGrey16_t>() const noexcept { return pixelFromTransGrey<uint16_t>(transValue[0]); }
+
 template<typename T> void compFrame(T compFunc(const T, const T), const bitmap_t &source, bitmap_t &destination,
 	const uint32_t xOffset, const uint32_t yOffset) noexcept
 {
@@ -364,6 +381,8 @@ template<typename T> void compFrame(T compFunc(const T, const T), const bitmap_t
 	T *const dstData = static_cast<T *const>(static_cast<void *const>(destination.data()));
 	const uint32_t width = source.width();
 	const uint32_t height = source.height();
+	const T trans = source.transparent<T>();
+	const typename T::type max = std::numeric_limits<typename T::type>::max();
 
 	for (uint32_t y = 0; y < height; ++y)
 	{

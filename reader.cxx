@@ -337,6 +337,8 @@ void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chun
 	bitmap_t partialFrame(fcTL.width(), fcTL.height(), format);
 	if (!processFrame(frameData, partialFrame))
 		throw invalidPNG_t();
+	if (transColourValid)
+		partialFrame.transparent(transColour);
 
 	// This constructs a disposeOp_t::background initialised bitmap anyway.
 	std::unique_ptr<bitmap_t> frame(new bitmap_t(_width, _height, format));

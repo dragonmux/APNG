@@ -268,6 +268,8 @@ private:
 	std::unique_ptr<uint8_t[]> _data;
 	const uint32_t _width, _height;
 	const pixelFormat_t _format;
+	bool transValueValid;
+	uint16_t transValue[3];
 
 public:
 	bitmap_t(const uint32_t width, const uint32_t height, const pixelFormat_t format);
@@ -276,6 +278,15 @@ public:
 	uint32_t width() const noexcept { return _width; }
 	uint32_t height() const noexcept { return _height; }
 	pixelFormat_t format() const noexcept { return _format; }
+	bool hasTransparency() const noexcept { return transValueValid; }
+	template<typename T> T transparent() const noexcept { return T(); }
+	void transparent(const uint16_t *const value) noexcept
+	{
+		transValue[0] = value[0];
+		transValue[1] = value[1];
+		transValue[2] = value[2];
+		transValueValid = true;
+	}
 };
 
 struct APNG_API apng_t final
@@ -293,6 +304,8 @@ private:
 	bitmap_t *_defaultFrame;
 	std::vector<std::pair<fcTL_t, std::unique_ptr<bitmap_t>>> _frames;
 	std::unique_ptr<bitmap_t> defaultFrameStorage;
+	bool transColourValid;
+	uint16_t transColour[3];
 
 public:
 	apng_t(stream_t &stream);
