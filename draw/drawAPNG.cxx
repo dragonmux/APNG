@@ -161,12 +161,12 @@ int main(int argc, char **argv) noexcept
 		catch (invalidPNG_t &error)
 		{
 			printf("%s\n", error.what());
-			return 1;
+			continue;
 		}
 		catch (std::system_error &error)
 		{
 			printf("%s\n", error.what());
-			return 1;
+			continue;
 		}
 
 		window.show();
