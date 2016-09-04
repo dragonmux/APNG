@@ -234,14 +234,14 @@ template<typename T> using filter_t = decltype(filterFunc_t<T>());
 enum class filterTypes_t : uint8_t { none, sub, up, average, paeth };
 
 template<typename T> T filterSub(const T *const data, const bitmapRegion_t &frame, const uint32_t x, const uint32_t y) noexcept
-	{ return safeIndex(data, x - 1, (y * frame.width())); }
+	{ return safeIndex(data, x - 1, y * frame.width()); }
 template<typename T> T filterUp(const T *const data, const bitmapRegion_t &frame, const uint32_t x, const uint32_t y) noexcept
-	{ return safeIndex(data, x, ((y - 1) * frame.width())); }
+	{ return safeIndex(data, x, (y - 1) * frame.width()); }
 
 template<typename T> T filterAverage(const T *const data, const bitmapRegion_t &frame, const uint32_t x, const uint32_t y) noexcept
 {
-	const T left = safeIndex(data, x - 1, (y * frame.width()));
-	const T up = safeIndex(data, x, ((y - 1) * frame.width()));
+	const T left = safeIndex(data, x - 1, y * frame.width());
+	const T up = safeIndex(data, x, (y - 1) * frame.width());
 	return (up >> 1) + (left >> 1) + ((up & 1) & (left & 1));
 }
 
@@ -285,9 +285,9 @@ template<typename T> pngGreyA_t<T> filterPaeth(pngGreyA_t<T> a, pngGreyA_t<T> b,
 
 template<typename T> T filterPaeth(const T *const data, const bitmapRegion_t &frame, const uint32_t x, const uint32_t y) noexcept
 {
-	const T left = safeIndex(data, x - 1, (y * frame.width()));
-	const T up = safeIndex(data, x, ((y - 1) * frame.width()));
-	const T upLeft = safeIndex(data, x - 1, ((y - 1) * frame.width()));
+	const T left = safeIndex(data, x - 1, y * frame.width());
+	const T up = safeIndex(data, x, (y - 1) * frame.width());
+	const T upLeft = safeIndex(data, x - 1, (y - 1) * frame.width());
 	return filterPaeth(left, up, upLeft);
 }
 
