@@ -340,27 +340,39 @@ template<typename T, bool copyFunc(stream_t &, T &)> bool copyFrame(stream_t &st
 	return true;
 }
 
-template<typename T> T compSource(T, T b) noexcept
-	{ return b; }
-template<typename T> T compOver(T a, T b) noexcept
-	{ return (a >> 1) + (b >> 1) + ((a & b) & 0x01); }
+template<typename T> T compNop(const T a, const T) noexcept { return a; }
+template<typename T> T compSource(const T, const T b) noexcept { return b; }
+template<typename T> T compOver(const T a, const T b, const T alpha) noexcept
+{
+	constexpr const T max = std::numeric_limits<T>::max();
+	constexpr const uint8_t bits = std::numeric_limits<T>::digits;
+	return T((alpha * b) >> bits) + T(((max - alpha) * a) >> bits);
+}
 
-template<blendOp_t::_blendOp_t op, typename T> T compOp(T a, T b) noexcept
+template<blendOp_t::_blendOp_t op, typename T> T compOp(const T a, const T b, const T alpha) noexcept
 {
 	if (op == blendOp_t::source)
 		return compSource(a, b);
 	else
-		return compOver(a, b);
+		return compOver(a, b, alpha);
 }
 
-template<typename T, blendOp_t::_blendOp_t op, typename U = T> U compRGB(const T pixelA, const T pixelB) noexcept
-	{ return {compOp<op>(pixelA.r, pixelB.r), compOp<op>(pixelA.g, pixelB.g), compOp<op>(pixelA.b, pixelB.b)}; }
-template<typename T, blendOp_t::_blendOp_t op> T compRGBA(const T pixelA, const T pixelB) noexcept
-	{ return {compRGB<T, op, typename T::pngRGBn_t>(pixelA, pixelB), compOp<op>(pixelA.a, pixelB.a)}; }
-template<typename T, blendOp_t::_blendOp_t op, typename U = T> U compGrey(const T pixelA, const T pixelB) noexcept
-	{ return {compOp<op>(pixelA.v, pixelB.v)}; }
-template<typename T, blendOp_t::_blendOp_t op> T compGreyA(const T pixelA, const T pixelB) noexcept
-	{ return {compGrey<T, op, typename T::pngGreyN_t>(pixelA, pixelB), compOp<op>(pixelA.a, pixelB.a)}; }
+template<blendOp_t::_blendOp_t op, typename T> T compOpA(const T a, const T b) noexcept
+{
+	if (op == blendOp_t::source)
+		return compSource(a, b);
+	else
+		return compNop(a, b);
+}
+
+template<typename T, blendOp_t::_blendOp_t op, typename U = T> U compRGB(const T pixelA, const T pixelB, const typename T::type alpha) noexcept
+	{ return {compOp<op>(pixelA.r, pixelB.r, alpha), compOp<op>(pixelA.g, pixelB.g, alpha), compOp<op>(pixelA.b, pixelB.b, alpha)}; }
+template<typename T, blendOp_t::_blendOp_t op> T compRGBA(const T pixelA, const T pixelB, const typename T::type) noexcept
+	{ return {compRGB<T, op, typename T::pngRGBn_t>(pixelA, pixelB, pixelB.a), compOpA<op>(pixelA.a, pixelB.a)}; }
+template<typename T, blendOp_t::_blendOp_t op, typename U = T> U compGrey(const T pixelA, const T pixelB, const typename T::type alpha) noexcept
+	{ return {compOp<op>(pixelA.v, pixelB.v, alpha)}; }
+template<typename T, blendOp_t::_blendOp_t op> T compGreyA(const T pixelA, const T pixelB, const typename T::type) noexcept
+	{ return {compGrey<T, op, typename T::pngGreyN_t>(pixelA, pixelB, pixelB.a), compOpA<op>(pixelA.a, pixelB.a)}; }
 
 template<typename T> pngRGB_t<T> pixelFromTransRGB(const uint16_t *const transValue) noexcept
 	{ return pngRGB_t<T>(transValue[0], transValue[1], transValue[2]); }
@@ -372,7 +384,7 @@ template<> pngRGB16_t bitmap_t::transparent<pngRGB16_t>() const noexcept { retur
 template<> pngGrey8_t bitmap_t::transparent<pngGrey8_t>() const noexcept { return pixelFromTransGrey<uint8_t>(transValue[0]); }
 template<> pngGrey16_t bitmap_t::transparent<pngGrey16_t>() const noexcept { return pixelFromTransGrey<uint16_t>(transValue[0]); }
 
-template<typename T> void compFrame(T compFunc(const T, const T), const bitmap_t &source, bitmap_t &destination,
+template<typename T> void compFrame(T compFunc(const T, const T, const typename T::type), const bitmap_t &source, bitmap_t &destination,
 	const uint32_t xOffset, const uint32_t yOffset) noexcept
 {
 	if ((source.width() + xOffset) > destination.width() || (source.height() + yOffset) > destination.height())
@@ -390,7 +402,7 @@ template<typename T> void compFrame(T compFunc(const T, const T), const bitmap_t
 		{
 			const uint32_t offsetSrc = x + (y * width);
 			const uint32_t offsetDst = (x + xOffset) + ((y + yOffset) * destination.width());
-			dstData[offsetDst] = compFunc(dstData[offsetDst], srcData[offsetSrc]);
+			dstData[offsetDst] = compFunc(dstData[offsetDst], srcData[offsetSrc], max);
 		}
 	}
 }
