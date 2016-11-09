@@ -10,7 +10,7 @@
 class apngTests final : public testsuit
 {
 public:
-	void testFileStream() noexcept
+	void testFileStream()
 	{
 		try
 		{
@@ -29,7 +29,7 @@ public:
 		}
 	}
 
-	void testMemoryStream() noexcept
+	void testMemoryStream()
 	{
 		struct stat fileStat;
 		const int32_t fd = open("loading_16.png", O_RDONLY | O_NOCTTY);
@@ -65,7 +65,7 @@ private:
 	static const std::pair<std::array<uint8_t, 17>, uint32_t> testData1;
 
 public:
-	void testCRC32() noexcept
+	void testCRC32()
 	{
 		uint32_t crcCalc;
 		crc32_t::crc(crcCalc = 0, testData1.first);
