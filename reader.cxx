@@ -133,7 +133,7 @@ bitmap_t::bitmap_t(const uint32_t width, const uint32_t height, const pixelForma
 	memset(_data.get(), 0, length);
 }
 
-apng_t::apng_t(stream_t &stream)
+apng_t::apng_t(stream_t &stream) : transColourValid(false)
 {
 	chunkList_t chunks;
 	checkSig(stream);
@@ -195,8 +195,6 @@ apng_t::apng_t(stream_t &stream)
 			}
 			transColourValid = true;
 		}
-		else
-			transColourValid = false;
 	}
 
 	const chunk_t &end = chunks.back();
