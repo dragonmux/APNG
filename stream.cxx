@@ -39,7 +39,7 @@ memoryStream_t::memoryStream_t(void *const stream, const size_t streamLength) no
 
 bool memoryStream_t::read(void *const value, const size_t valueLen, size_t &actualLen) noexcept
 {
-	if ((pos + valueLen) < pos)
+	if (atEOF() || (pos + valueLen) < pos)
 		return false;
 	actualLen = (pos + valueLen) > length ? length - pos : valueLen;
 	memcpy(value, memory + pos, actualLen);
