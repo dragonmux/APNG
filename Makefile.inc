@@ -1,13 +1,14 @@
 # Makefile include for APNG. Set V to something other than 0 for more detailed build output.
 
-ifeq ($(MAKELEVEL), 0)
-
 # Silence the tools
 ifeq ("$(origin V)", "command line")
 	BUILD_VERBOSE = $(V)
 endif
 ifndef BUILD_VERBOSE
 	BUILD_VERBOSE = 0
+endif
+ifeq ($(strip $(COVERAGE)), 1)
+	DEBUG = 1
 endif
 
 MAKEFLAGS += -w
@@ -24,8 +25,6 @@ ifneq ($(findstring s,$(MAKEFLAGS)),)
 endif
 
 export quiet Q BUILD_VERBOSE
-
-endif
 
 quiet_cmd_cxx = " CXX   $@"
 cmd_cxx = $(CXX) $(2)
@@ -52,6 +51,8 @@ quiet_cmd_install_file = " INSTALL $(2) => $(3)"
 cmd_install_file = $(INSTALL_FILE) $(2) $(3)
 quiet_cmd_install_bin = " INSTALL $(2) => $(3)"
 cmd_install_bin = $(INSTALL_BIN) $(2) $(3)
+quiet_cmd_sed = " GEN   $(3)"
+cmd_sed = $(SED) $(2) > $(3)
 quiet_cmd_ldconfig = " LDCONFIG"
 cmd_ldconfig = ldconfig
 
@@ -61,14 +62,8 @@ define run-cmd
 endef
 
 define makedep
-	@if [ -z "$(quiet)" ]; then \
-		echo $(cmd_makedep); \
-	fi
-	@$(cmd_makedep)
+	$(Q)$(cmd_makedep)
 endef
-#@if [ "$($dir $<)" != "./" ]; then \
-#	sed -i "s|^$(notdir $@):|$@:|" .dep/$*.d; \
-#fi
 
 define debug-strip
 	$(Q)if [ $(DEBUG) -eq 0 ]; then \
@@ -88,6 +83,9 @@ endef
 GXX ?= g++
 ifeq ($(strip $(DEBUG)), 1)
 	OPTIM_FLAGS = -ggdb
+	ifeq ($(strip $(COVERAGE)), 1)
+		OPTIM_FLAGS += -O0 -g --coverage
+	endif
 	GCC_FLAGS =
 else
 	GCC_VER = $(shell gcc -dumpversion | cut -d . -f 1)
