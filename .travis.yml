@@ -11,7 +11,7 @@ before_install:
 install:
   - export GCC="$GCC -m64" GXX="$GXX -m64"
   - make
-  - sudo make install
+#  - sudo make install
 script:
   - make tests
   - make check
