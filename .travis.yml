@@ -2,14 +2,16 @@ language: cpp
 sudo: required
 
 before_install:
-  - export GCC="$GCC -m64" GXX="$GXX -m64"
-install:
+  - export GCC="$GCC -m64 -fPIC -DPIC" GXX="$GXX -m64 -fPIC -DPIC"
   - pushd $HOME/build
   - git clone https://github.com/DX-MON/crunch.git DX-MON/crunch
   - cd DX-MON/crunch
   - sudo make install
   - popd
+install:
+  - export GCC="$GCC -m64" GXX="$GXX -m64"
   - make
+  - sudo make install
 script:
   - make tests
   - make check
