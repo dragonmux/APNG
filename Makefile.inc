@@ -111,7 +111,7 @@ STRIP = strip -x
 INSTALL = install
 INSTALL_FILE = $(INSTALL) -m644
 INSTALL_BIN = $(INSTALL) -m755
-INSTALL_DIR = mkdir -p
+INSTALL_DIR = $(INSTALL) -d
 UID = $(shell id -u)
 
 export CC CXX DEBUG UID
