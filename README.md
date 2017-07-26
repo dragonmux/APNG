@@ -3,6 +3,8 @@
 
 The goal of this library is to provide a very simple API for reading and using frames from an APNG file.
 
+[![Build Status](https://travis-ci.org/DX-MON/APNG.svg?branch=master)](https://travis-ci.org/DX-MON/APNG)
+
 ## Building the library
 
 This library can be built by running:
