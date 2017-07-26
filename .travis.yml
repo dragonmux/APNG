@@ -1,0 +1,98 @@
+language: cpp
+sudo: required
+
+before_install:
+  - export GCC="$GCC -m64" GXX="$GXX -m64"
+install:
+  - pushd $HOME/build
+  - git clone https://github.com/DX-MON/crunch.git DX-MON/crunch
+  - cd DX-MON/crunch
+  - sudo make install
+  - popd
+  - make
+script:
+  - make tests
+  - make check
+after_success:
+  - if [ "$COVERAGE" == "1" ]; then
+      bash <(curl -s https://codecov.io/bash) -x $GCOV;
+    fi
+
+matrix:
+  include:
+    - compiler: clang-3.8
+      env: GCC=clang-3.8 GXX=clang++-3.8 COVERAGE=0
+      addons:
+        apt:
+          sources:
+            - sourceline: 'deb http://apt.llvm.org/precise/ llvm-toolchain-precise-3.8 main'
+              key_url: 'http://apt.llvm.org/llvm-snapshot.gpg.key'
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-4.9
+            - g++-4.9
+            - clang-3.8
+    - compiler: clang-3.9
+      env: GCC=clang-3.9 GXX=clang++-3.9 COVERAGE=0
+      addons:
+        apt:
+          sources:
+            - sourceline: 'deb http://apt.llvm.org/precise/ llvm-toolchain-precise-3.9 main'
+              key_url: 'http://apt.llvm.org/llvm-snapshot.gpg.key'
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-4.9
+            - g++-4.9
+            - clang-3.9
+    - compiler: clang-4.0
+      env: GCC=clang-4.0 GXX=clang++-4.0 COVERAGE=0
+      addons:
+        apt:
+          sources:
+            - sourceline: 'deb http://apt.llvm.org/precise/ llvm-toolchain-precise-4.0 main'
+              key_url: 'http://apt.llvm.org/llvm-snapshot.gpg.key'
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-4.9
+            - g++-4.9
+            - clang-4.0
+    - compiler: gcc-4.9
+      env: GCC=gcc-4.9 GXX=g++-4.9 GCOV=gcov-4.9
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-4.9
+            - g++-4.9
+    - compiler: gcc-4.9
+      env: GCC=gcc-4.9 GXX=g++-4.9 COVERAGE=0
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-4.9
+            - g++-4.9
+    - compiler: gcc-5
+      env: GCC=gcc-5 GXX=g++-5 GCOV=gcov-5
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-5
+            - g++-5
+    - compiler: gcc-6
+      env: GCC=gcc-6 GXX=g++-6 GCOV=gcov-6
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-6
+            - g++-6
+
+env:
+  global:
+    - COVERAGE=1
