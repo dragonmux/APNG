@@ -65,7 +65,7 @@ public:
 	const chunkType_t &type() const noexcept { return _chunkType; }
 	const uint8_t *data() const noexcept { return _chunkData.get(); }
 
-	static chunk_t loadChunk(stream_t &stream) noexcept;
+	static chunk_t loadChunk(stream_t &stream);
 };
 
 struct APNG_API bitDepth_t final

@@ -16,7 +16,7 @@ chunk_t &chunk_t::operator =(chunk_t &&chunk) noexcept
 	return *this;
 }
 
-chunk_t chunk_t::loadChunk(stream_t &stream) noexcept
+chunk_t chunk_t::loadChunk(stream_t &stream)
 {
 	chunk_t chunk;
 	if (!stream.read(chunk._length) ||
