@@ -18,7 +18,7 @@ private:
 
 public:
 	template<size_t N> static void crc(uint32_t &crc, const std::array<uint8_t, N> &data) noexcept
-	{ crc32_t::crc(crc, data.data(), data.size()); }
+		{ crc32_t::crc(crc, data.data(), data.size()); }
 	static void crc(uint32_t &crc, const uint8_t *data, size_t dataLen) noexcept
 	{
 		crc ^= 0xFFFFFFFF;
