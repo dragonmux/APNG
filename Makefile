@@ -17,7 +17,7 @@ ifeq ($(BUILD_VERBOSE), 0)
 	CRUNCHMAKE += -q
 endif
 ifeq ($(strip $(COVERAGE)), 1)
-	CRUNCHMAKE += -lgcov
+	CRUNCHMAKE += --coverage
 endif
 CRUNCH = crunch++
 
@@ -73,7 +73,7 @@ $(SO): $(O)
 
 tests: $(O) $(TESTS)
 
-testAPNG.so: CRUNCHMAKE += $(addprefix -o,$(O))
+testAPNG.so: CRUNCHMAKE += $(O)
 $(TESTS): $(subst .so,.cxx,$@)
 	$(call run-cmd,crunchMake,$(subst .so,.cxx,$@))
 
