@@ -9,6 +9,7 @@ DEPFLAGS = $(OPTIM_FLAGS) -E -MM $(DEFS) -o .dep/$*.d $<
 LIBS = $(LIBS_EXTRA)
 # -pthread
 LFLAGS = $(OPTIM_FLAGS) -shared $(O) $(LIBS) -Wl,-soname,$@ -z defs -o $@
+CCLDFLAGS = $(OPTIM_FLAGS) $(DEFS) $(LIBS) -L. -lAPNG -Wl,-rpath,\$$ORIGIN -o $@ $<
 
 SED = sed -e 's:@LIBDIR@:$(LIBDIR):g' -e 's:@PREFIX@:$(PREFIX):g' -e 's:@VERSION@:$(VER):g'
 
@@ -76,6 +77,9 @@ tests: $(O) $(TESTS)
 testAPNG.so: CRUNCHMAKE += $(O)
 $(TESTS): $(subst .so,.cxx,$@)
 	$(call run-cmd,crunchMake,$(subst .so,.cxx,$@))
+
+testRead: testRead.cxx
+	$(call run-cmd,ccld,$(CCLDFLAGS))
 
 check: tests
 	$(call run-cmd,crunch,$(subst .so,,$(TESTS)))

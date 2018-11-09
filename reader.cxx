@@ -54,7 +54,7 @@ public:
 	chunkStream_t(const chunkList_t chunks, const bool sequence = false, const size_t seqIndex = 0) noexcept : _chunks(chunks), chunk(0), pos(0),
 		isSequence(sequence), sequenceIndex(seqIndex) { }
 
-	bool read(void *const value, const size_t valueLen, size_t &actualLen) noexcept final override
+	bool read(void *const value, const size_t valueLen, size_t &actualLen) final override
 	{
 		if (atEOF())
 			return false;
