@@ -244,7 +244,7 @@ void apng_t::checkSig(stream_t &stream)
 
 void apng_t::validateHeader()
 {
-	if (!_width || !_height || (_width >> 31) || (_height >> 31))
+	if (!_width || !_height || (_width >> 31U) || (_height >> 31U))
 		throw invalidPNG_t{};
 	if (_colourType == colourType_t::rgb || _colourType == colourType_t::greyscaleAlpha || _colourType == colourType_t::rgba)
 	{
