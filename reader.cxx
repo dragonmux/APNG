@@ -141,14 +141,14 @@ apng_t::apng_t(stream_t &stream) : transColourValid(false)
 	chunk_t header = chunk_t::loadChunk(stream);
 	if (!isIHDR(header) || header.length() != 13)
 		throw invalidPNG_t{};
-	const uint8_t *const headerData = header.data();
-	_width = swap32(reinterpret_cast<const uint32_t *const>(headerData)[0]);
-	_height = swap32(reinterpret_cast<const uint32_t *const>(headerData)[1]);
-	_bitDepth = bitDepth_t(headerData[8]);
-	_colourType = colourType_t(headerData[9]);
+	const auto headerData = header.data();
+	_width = read32(&headerData[0]);
+	_height = read32(&headerData[4]);
+	_bitDepth = {headerData[8]};
+	_colourType = {headerData[9]};
 	if (headerData[10] || headerData[11])
 		throw invalidPNG_t{};
-	_interlacing = interlace_t(headerData[12]);
+	_interlacing = {headerData[12]};
 	validateHeader();
 
 	while (!stream.atEOF())
