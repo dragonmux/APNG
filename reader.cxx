@@ -334,16 +334,16 @@ uint32_t apng_t::processDefaultFrame(const chunkList_t &chunks, const bool isSeq
 {
 	chunkStream_t chunkStream(extract(chunks, isIDAT));
 	zlibStream_t frameData{chunkStream, zlibStream_t::inflate};
-	_defaultFrame = new bitmap_t(_width, _height, pixelFormat());
+	auto frame = makeUnique<bitmap_t>(_width, _height, pixelFormat());
+	_defaultFrame = frame.get();
 	if (isSequenceFrame)
 	{
-		std::unique_ptr<bitmap_t> frame(_defaultFrame);
 		fcTL_t fcTL = fcTL_t::reinterpret(controlChunk, 0);
 		fcTL.check(_width, _height, true);
 		_frames.emplace_back(std::make_pair(std::move(fcTL), std::move(frame)));
 	}
 	else
-		defaultFrameStorage.reset(_defaultFrame);
+		defaultFrameStorage = std::move(frame);
 
 	if (!processFrame(frameData, *_defaultFrame))
 		throw invalidPNG_t{};
