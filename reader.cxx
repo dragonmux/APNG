@@ -129,7 +129,7 @@ bitmap_t::bitmap_t(const uint32_t width, const uint32_t height, const pixelForma
 	else
 		throw invalidPNG_t{};
 	const size_t length = width * height * bytes;
-	_data.reset(new uint8_t[length]);
+	_data = makeUnique<uint8_t []>(length);
 	memset(_data.get(), 0, length);
 }
 
