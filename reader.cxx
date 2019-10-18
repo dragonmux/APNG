@@ -110,6 +110,21 @@ bool isFCTL(const chunk_t &chunk) noexcept { return chunk.type() == typeFCTL; }
 bool isIEND(const chunk_t &chunk) noexcept { return chunk.type() == typeIEND; }
 bool isFDAT(const chunk_t &chunk) noexcept { return chunk.type() == typeFDAT; }
 
+constexpr static uint64_t uint64Max = std::numeric_limits<uint64_t>::max();
+
+inline uint64_t safeMul(const uint64_t a, const uint64_t b) noexcept
+{
+	if (a == uint64Max || b == uint64Max)
+		return uint64Max;
+	const uint64_t c = (a >> 32U) * (b >> 32U);
+	if (c)
+		return uint64Max;
+	return a * b;
+}
+
+template<typename ...values_t> uint64_t safeMul(const uint64_t a, const uint64_t b, values_t &&...values) noexcept
+	{ return safeMul(safeMul(a, b), values...); }
+
 bitmap_t::bitmap_t(const uint32_t width, const uint32_t height, const pixelFormat_t format) :
 	_width(width), _height(height), _format(format), transValueValid(false)
 {
@@ -128,7 +143,9 @@ bitmap_t::bitmap_t(const uint32_t width, const uint32_t height, const pixelForma
 		bytes = 8;
 	else
 		throw invalidPNG_t{};
-	const size_t length = width * height * bytes;
+	const uint64_t length = safeMul(width, height, bytes);
+	if (length == uint64Max)
+		throw std::bad_alloc{};
 	_data = makeUnique<uint8_t []>(length);
 	memset(_data.get(), 0, length);
 }
