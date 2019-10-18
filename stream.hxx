@@ -25,10 +25,10 @@ public:
 
 	bool read(void *const value, const size_t valueLen)
 	{
-		size_t actualLen = 0;
-		if (!read(value, valueLen, actualLen))
+		size_t countRead = 0;
+		if (!read(value, valueLen, countRead))
 			return false;
-		return valueLen == actualLen;
+		return valueLen == countRead;
 	}
 
 	virtual bool read(void *const, const size_t, size_t &) { throw notImplemented_t(); }
@@ -47,7 +47,7 @@ public:
 	fileStream_t(const char *const fileName, const int32_t mode);
 	~fileStream_t() noexcept;
 
-	bool read(void *const value, const size_t valueLen, size_t &actualLen) final override;
+	bool read(void *const value, const size_t valueLen, size_t &countRead) final override;
 	bool atEOF() const noexcept final override;
 };
 
@@ -61,7 +61,7 @@ private:
 public:
 	memoryStream_t(void *const stream, const size_t streamLength) noexcept;
 
-	bool read(void *const value, const size_t valueLen, size_t &actualLen) noexcept final override;
+	bool read(void *const value, const size_t valueLen, size_t &countRead) noexcept final override;
 	bool atEOF() const noexcept final override;
 };
 
@@ -85,7 +85,7 @@ public:
 	zlibStream_t(stream_t &sourceStream, const mode_t streamMode);
 	~zlibStream_t() noexcept;
 
-	bool read(void *const value, const size_t valueLen, size_t &actualLen) final override;
+	bool read(void *const value, const size_t valueLen, size_t &countRead) final override;
 	bool atEOF() const noexcept final override;
 };
 
