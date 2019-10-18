@@ -51,8 +51,8 @@ private:
 	const uint8_t *data() const noexcept { return _chunks[chunk]->data() + (isSequence ? 4 : 0); }
 
 public:
-	chunkStream_t(const chunkList_t chunks, const bool sequence = false, const size_t seqIndex = 0) noexcept : _chunks{chunks}, chunk{}, pos{},
-		isSequence{sequence}, sequenceIndex{seqIndex} { }
+	explicit chunkStream_t(chunkList_t &&chunks, const bool sequence = false, const size_t seqIndex = 0) noexcept :
+		_chunks{std::move(chunks)}, chunk{}, pos{}, isSequence{sequence}, sequenceIndex{seqIndex} { }
 
 	bool read(void *const value, const size_t valueLen, size_t &actualLen) final override
 	{
