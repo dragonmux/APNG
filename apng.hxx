@@ -165,12 +165,12 @@ private:
 	uint32_t _loops;
 
 	acTL_t(const uint8_t *const data) noexcept;
-	acTL_t(const acTL_t &) = delete;
-	acTL_t &operator =(const acTL_t &) = delete;
 
 public:
 	constexpr acTL_t() noexcept : _frames(1), _loops(0) { }
 	acTL_t(acTL_t &&acTL) noexcept : _frames(acTL._frames), _loops(acTL._loops) { }
+	acTL_t(const acTL_t &) = delete;
+	acTL_t &operator =(const acTL_t &) = delete;
 	void operator =(acTL_t &&acTL) noexcept
 	{
 		_frames = acTL._frames;
@@ -199,8 +199,6 @@ private:
 	blendOp_t _blendOp;
 
 	fcTL_t(const uint8_t *const data, const uint32_t frame) noexcept;
-	fcTL_t(const fcTL_t &) = delete;
-	fcTL_t &operator =(const fcTL_t &) = delete;
 
 public:
 	constexpr fcTL_t() noexcept : _frame(0), _sequenceIndex(0), _width(0), _height(0), _xOffset(0),
@@ -208,6 +206,8 @@ public:
 	fcTL_t(fcTL_t &&fcTL) noexcept : _frame(fcTL._frame), _sequenceIndex(fcTL._sequenceIndex),
 		_width(fcTL._width), _height(fcTL._height), _xOffset(fcTL._xOffset), _yOffset(fcTL._yOffset),
 		_delayN(fcTL._delayN), _delayD(fcTL._delayD), _disposeOp(fcTL._disposeOp), _blendOp(fcTL._blendOp) { }
+	fcTL_t(const fcTL_t &) = delete;
+	fcTL_t &operator =(const fcTL_t &) = delete;
 	void operator =(fcTL_t &&fcTL) noexcept
 	{
 		_frame = fcTL._frame;
@@ -252,20 +252,21 @@ struct APNG_API displayTime_t final
 {
 private:
 	const uint32_t delayN, delayD;
+
+public:
+	constexpr displayTime_t(const uint32_t N, const uint32_t D) noexcept : delayN{N}, delayD{D} { }
+	displayTime_t(const displayTime_t &time) noexcept : delayN{time.delayN}, delayD{time.delayD} { }
+	void waitFor() const noexcept;
+
 	displayTime_t(displayTime_t &&) = delete;
 	displayTime_t &operator =(const displayTime_t &) = delete;
 	displayTime_t &operator =(displayTime_t &&) = delete;
-
-public:
-	constexpr displayTime_t(const uint32_t N, const uint32_t D) noexcept : delayN(N), delayD(D) { }
-	displayTime_t(const displayTime_t &time) noexcept : delayN(time.delayN), delayD(time.delayD) { }
-	void waitFor() const noexcept;
 };
 
 struct APNG_API bitmap_t final
 {
 private:
-	std::unique_ptr<uint8_t[]> _data;
+	std::unique_ptr<uint8_t []> _data;
 	const uint32_t _width, _height;
 	const pixelFormat_t _format;
 	bool transValueValid;

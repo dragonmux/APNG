@@ -15,7 +15,7 @@ struct APNG_API zlibError_t : public std::exception { };
 struct stream_t
 {
 protected:
-	stream_t() noexcept { }
+	stream_t() noexcept = default;
 
 public:
 	template<typename T> bool read(T &value) noexcept

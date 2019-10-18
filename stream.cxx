@@ -51,7 +51,8 @@ bool memoryStream_t::atEOF() const noexcept
 	{ return pos == length; }
 
 zlibStream_t::zlibStream_t(stream_t &sourceStream, const mode_t streamMode) :
-	source(sourceStream), mode(streamMode), bufferUsed(0), bufferAvail(0), eos(false)
+	source{sourceStream}, mode{streamMode}, stream{}, bufferUsed{}, bufferAvail{},
+	bufferIn{}, bufferOut{}, eos{false}
 {
 	memset(&stream, 0, sizeof(z_stream));
 	if (mode == inflate)
