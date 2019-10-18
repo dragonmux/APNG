@@ -276,6 +276,7 @@ public:
 	bitmap_t(const uint32_t width, const uint32_t height, const pixelFormat_t format);
 	const uint8_t *data() const noexcept { return _data.get(); }
 	uint8_t *data() noexcept { return _data.get(); }
+	void *rawData() noexcept { return _data.get(); }
 	uint32_t width() const noexcept { return _width; }
 	uint32_t height() const noexcept { return _height; }
 	pixelFormat_t format() const noexcept { return _format; }
