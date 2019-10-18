@@ -7,6 +7,7 @@
 #include <array>
 #include <vector>
 #include <memory>
+#include <utility>
 
 #ifndef _MSC_VER
 	#if __GNUC__ >= 4

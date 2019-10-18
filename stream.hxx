@@ -53,8 +53,8 @@ public:
 
 	bool read(void *const value, const size_t valueLen, size_t &countRead) final override;
 	bool atEOF() const noexcept final override { return eof; }
-	void swap(fileStream_t &) noexcept;
 
+	void swap(fileStream_t &) noexcept;
 	fileStream_t(const fileStream_t &) = delete;
 	fileStream_t &operator =(const fileStream_t &) = delete;
 };
@@ -64,16 +64,26 @@ inline void swap(fileStream_t &a, fileStream_t &b) noexcept { a.swap(b); }
 struct APNG_API memoryStream_t : public stream_t
 {
 private:
-	char *const memory;
-	const size_t length;
+	char *memory;
+	size_t length;
 	size_t pos;
+
+	memoryStream_t() noexcept : stream_t{}, memory{}, length{}, pos{} { }
 
 public:
 	memoryStream_t(void *const stream, const size_t streamLength) noexcept;
+	memoryStream_t(memoryStream_t &&stream) noexcept : memoryStream_t{} { swap(stream); }
+	void operator =(memoryStream_t &&stream) noexcept { swap(stream); }
 
 	bool read(void *const value, const size_t valueLen, size_t &countRead) noexcept final override;
-	bool atEOF() const noexcept final override;
+	bool atEOF() const noexcept final override { return pos == length; }
+
+	void swap(memoryStream_t &) noexcept;
+	memoryStream_t(const memoryStream_t &) = delete;
+	memoryStream_t &operator =(const memoryStream_t &) = delete;
 };
+
+inline void swap(memoryStream_t &a, memoryStream_t &b) noexcept { a.swap(b); }
 
 struct APNG_API zlibStream_t : public stream_t
 {
