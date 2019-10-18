@@ -116,6 +116,8 @@ inline uint64_t safeMul(const uint64_t a, const uint64_t b) noexcept
 {
 	if (a == uint64Max || b == uint64Max)
 		return uint64Max;
+	// This uses the first step in the Karatsuba decomposition method of multiplication
+	// to determine if the multiplication would set any bits above the max for uint64_t
 	const uint64_t c = (a >> 32U) * (b >> 32U);
 	if (c)
 		return uint64Max;
