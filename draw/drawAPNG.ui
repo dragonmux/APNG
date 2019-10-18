@@ -20,6 +20,9 @@
   <property name="windowTitle">
    <string>APNG rendering test tool</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(51, 51, 51);</string>
+  </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>true</bool>
   </property>
