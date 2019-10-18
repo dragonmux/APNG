@@ -23,6 +23,11 @@ public:
 	uint32_t height() const noexcept { return _height; }
 };
 
+inline uint16_t read16(const uint8_t *const value) noexcept
+	{ return (uint16_t(value[0]) << 8) | uint16_t(value[1]); }
+inline uint32_t read32(const uint8_t *const value) noexcept
+	{ return (uint32_t(value[0]) << 24) | (uint32_t(value[1]) << 16) | (uint32_t(value[2]) << 8) | uint32_t(value[3]); }
+
 uint32_t swap32(const uint32_t i) noexcept
 {
 	return ((i >> 24) & 0xFF) | ((i >> 8) & 0xFF00) | ((i & 0xFF00) << 8) | ((i & 0xFF) << 24);
