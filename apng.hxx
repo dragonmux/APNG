@@ -164,7 +164,7 @@ private:
 	uint32_t _frames;
 	uint32_t _loops;
 
-	acTL_t(const uint32_t *const data) noexcept;
+	acTL_t(const uint8_t *const data) noexcept;
 	acTL_t(const acTL_t &) = delete;
 	acTL_t &operator =(const acTL_t &) = delete;
 

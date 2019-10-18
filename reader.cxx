@@ -405,11 +405,7 @@ std::vector<std::pair<const displayTime_t, const bitmap_t *const>> apng_t::frame
 	return frameArray;
 }
 
-acTL_t::acTL_t(const uint32_t *const data) noexcept
-{
-	_frames = swap32(data[0]);
-	_loops = swap32(data[1]);
-}
+acTL_t::acTL_t(const uint8_t *const data) noexcept : _frames{read32(&data[0])}, _loops{read32(&data[4])} { }
 
 void acTL_t::check(const std::vector<chunk_t> &chunks) const
 {
@@ -420,30 +416,19 @@ void acTL_t::check(const std::vector<chunk_t> &chunks) const
 acTL_t acTL_t::reinterpret(const chunk_t &chunk)
 {
 	if (chunk.length() != 8)
-		throw invalidPNG_t();
-	return acTL_t(reinterpret_cast<const uint32_t *const>(chunk.data()));
+		throw invalidPNG_t{};
+	return {chunk.data()};
 }
 
-fcTL_t::fcTL_t(const uint8_t *const data, const uint32_t frame) noexcept : _frame(frame)
-{
-	const uint32_t *const data32 = reinterpret_cast<const uint32_t *const>(data);
-	const uint16_t *const data16 = reinterpret_cast<const uint16_t *const>(data);
-	_sequenceIndex = swap32(data32[0]);
-	_width = swap32(data32[1]);
-	_height = swap32(data32[2]);
-	_xOffset = swap32(data32[3]);
-	_yOffset = swap32(data32[4]);
-	_delayN = swap16(data16[10]);
-	_delayD = swap16(data16[11]);
-	_disposeOp = disposeOp_t(data[24]);
-	_blendOp = blendOp_t(data[25]);
-}
+fcTL_t::fcTL_t(const uint8_t *const data, const uint32_t frame) noexcept : _frame(frame), _sequenceIndex{read32(&data[0])},
+	_width{read32(&data[4])}, _height{read32(&data[8])}, _xOffset{read32(&data[12])}, _yOffset{read32(&data[16])},
+	_delayN{read16(&data[20])}, _delayD{read16(&data[22])}, _disposeOp{data[24]}, _blendOp{data[25]} { }
 
 fcTL_t fcTL_t::reinterpret(const chunk_t &chunk, const uint32_t frame)
 {
 	if (chunk.length() != 26)
-		throw invalidPNG_t();
-	return fcTL_t(chunk.data(), frame);
+		throw invalidPNG_t{};
+	return {chunk.data(), frame};
 }
 
 void fcTL_t::check(const uint32_t pngWidth, const uint32_t pngHeight, const bool first)
