@@ -21,10 +21,10 @@ public:
 		{ crc32_t::crc(crc, data.data(), data.size()); }
 	static void crc(uint32_t &crc, const uint8_t *data, size_t dataLen) noexcept
 	{
-		crc ^= 0xFFFFFFFF;
+		crc ^= UINT32_C(0xFFFFFFFF);
 		while (dataLen--)
-			crc = crcTable[uint8_t(crc ^ *data++)] ^ (crc >> 8);
-		crc ^= 0xFFFFFFFF;
+			crc = crcTable[uint8_t(crc ^ *data++)] ^ (crc >> 8U);
+		crc ^= UINT32_C(0xFFFFFFFF);
 	}
 };
 

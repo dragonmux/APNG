@@ -2,7 +2,7 @@
 
 // Iterate till we have calculated the CRC
 constexpr uint32_t calcTableC(const uint32_t poly, const uint32_t c, const uint8_t k) noexcept
-	{ return k ? calcTableC(poly, ((c & 1) == 1 ? poly : 0) ^ (c >> 1), k - 1) : c; }
+	{ return k ? calcTableC(poly, ((c & 1U) == 1U ? poly : 0U) ^ (c >> 1U), k - 1U) : c; }
 // Generate CRC for byte 'n'
 constexpr uint32_t calcTableC(const uint32_t poly, const uint8_t n) noexcept
 	{ return calcTableC(poly, n, 8); }
