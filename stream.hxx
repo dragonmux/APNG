@@ -43,13 +43,23 @@ private:
 	size_t length;
 	bool eof;
 
+	fileStream_t() noexcept : stream_t{}, fd{-1}, length{}, eof{true} { }
+
 public:
 	fileStream_t(const char *const fileName, const int32_t mode);
+	fileStream_t(fileStream_t &&stream) noexcept : fileStream_t{} { swap(stream); }
 	~fileStream_t() noexcept;
+	void operator =(fileStream_t &&stream) noexcept { swap(stream); }
 
 	bool read(void *const value, const size_t valueLen, size_t &countRead) final override;
-	bool atEOF() const noexcept final override;
+	bool atEOF() const noexcept final override { return eof; }
+	void swap(fileStream_t &) noexcept;
+
+	fileStream_t(const fileStream_t &) = delete;
+	fileStream_t &operator =(const fileStream_t &) = delete;
 };
+
+inline void swap(fileStream_t &a, fileStream_t &b) noexcept { a.swap(b); }
 
 struct APNG_API memoryStream_t : public stream_t
 {

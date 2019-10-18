@@ -31,8 +31,12 @@ bool fileStream_t::read(void *const value, const size_t valueLen, size_t &countR
 	return true;
 }
 
-bool fileStream_t::atEOF() const noexcept
-	{ return eof; }
+void fileStream_t::swap(fileStream_t &stream) noexcept
+{
+	std::swap(fd, stream.fd);
+	std::swap(length, stream.length);
+	std::swap(eof, stream.eof);
+}
 
 memoryStream_t::memoryStream_t(void *const stream, const size_t streamLength) noexcept :
 	memory(static_cast<char *const>(stream)), length(streamLength), pos(0) { }
