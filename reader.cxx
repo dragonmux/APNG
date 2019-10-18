@@ -152,7 +152,7 @@ bitmap_t::bitmap_t(const uint32_t width, const uint32_t height, const pixelForma
 	memset(_data.get(), 0, length);
 }
 
-apng_t::apng_t(stream_t &stream) : transColourValid(false)
+apng_t::apng_t(stream_t &stream) : transColourValid(false), transColour{}
 {
 	chunkList_t chunks;
 	checkSig(stream);
@@ -200,18 +200,15 @@ apng_t::apng_t(stream_t &stream) : transColourValid(false)
 			if ((_colourType == colourType_t::rgb && trans->length() != 6) ||
 				(_colourType == colourType_t::greyscale && trans->length() != 2))
 				throw invalidPNG_t{};
+			const auto colour = trans->data();
 			if (_colourType == colourType_t::rgb)
 			{
-				const pngRGB16_t colour = *reinterpret_cast<const pngRGB16_t *const>(trans->data());
-				transColour[0] = swap16(colour.r);
-				transColour[1] = swap16(colour.g);
-				transColour[2] = swap16(colour.b);
+				transColour[0] = read16(&colour[0]);
+				transColour[1] = read16(&colour[2]);
+				transColour[2] = read16(&colour[4]);
 			}
 			else
-			{
-				const pngGrey16_t colour = *reinterpret_cast<const pngGrey16_t *const>(trans->data());
-				transColour[0] = colour.v;
-			}
+				transColour[0] = read16(colour);
 			transColourValid = true;
 		}
 	}
