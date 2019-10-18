@@ -132,11 +132,11 @@ private:
 
 public:
 	constexpr disposeOp_t() noexcept : value(background) { }
-	disposeOp_t(const uint8_t depth);
-	disposeOp_t(const disposeOp_t &depth) noexcept : value(depth.value) { }
-	disposeOp_t(disposeOp_t &&depth) noexcept : value(depth.value) { }
-	disposeOp_t &operator =(const disposeOp_t &depth) noexcept { value = depth.value; return *this; }
-	disposeOp_t &operator =(disposeOp_t &&depth) noexcept { value = depth.value; return *this; }
+	disposeOp_t(const uint8_t op);
+	disposeOp_t(const disposeOp_t &op) noexcept : value(op.value) { }
+	disposeOp_t(disposeOp_t &&op) noexcept : value(op.value) { }
+	disposeOp_t &operator =(const disposeOp_t &op) noexcept { value = op.value; return *this; }
+	disposeOp_t &operator =(disposeOp_t &&op) noexcept { value = op.value; return *this; }
 	operator _disposeOp_t() const noexcept { return value; }
 };
 
@@ -150,11 +150,11 @@ private:
 
 public:
 	constexpr blendOp_t() noexcept : value(source) { }
-	blendOp_t(const uint8_t depth);
-	blendOp_t(const blendOp_t &depth) noexcept : value(depth.value) { }
-	blendOp_t(blendOp_t &&depth) noexcept : value(depth.value) { }
-	blendOp_t &operator =(const blendOp_t &depth) noexcept { value = depth.value; return *this; }
-	blendOp_t &operator =(blendOp_t &&depth) noexcept { value = depth.value; return *this; }
+	blendOp_t(const uint8_t op);
+	blendOp_t(const blendOp_t &op) noexcept : value(op.value) { }
+	blendOp_t(blendOp_t &&op) noexcept : value(op.value) { }
+	blendOp_t &operator =(const blendOp_t &op) noexcept { value = op.value; return *this; }
+	blendOp_t &operator =(blendOp_t &&op) noexcept { value = op.value; return *this; }
 	operator _blendOp_t() const noexcept { return value; }
 };
 
