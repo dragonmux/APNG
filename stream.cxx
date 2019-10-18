@@ -17,7 +17,7 @@ fileStream_t::fileStream_t(const char *const fileName, const int32_t mode) : fd(
 	length = fileStat.st_size;
 }
 
-fileStream_t::~fileStream_t() noexcept { close(fd); }
+fileStream_t::~fileStream_t() noexcept { if (fd != -1) close(fd); }
 
 bool fileStream_t::read(void *const value, const size_t valueLen, size_t &countRead)
 {
@@ -39,7 +39,7 @@ void fileStream_t::swap(fileStream_t &stream) noexcept
 }
 
 memoryStream_t::memoryStream_t(void *const stream, const size_t streamLength) noexcept :
-	memory(static_cast<char *const>(stream)), length(streamLength), pos(0) { }
+	memory(static_cast<char *>(stream)), length(streamLength), pos(0) { }
 
 bool memoryStream_t::read(void *const value, const size_t valueLen, size_t &countRead) noexcept
 {
@@ -51,8 +51,12 @@ bool memoryStream_t::read(void *const value, const size_t valueLen, size_t &coun
 	return true;
 }
 
-bool memoryStream_t::atEOF() const noexcept
-	{ return pos == length; }
+void memoryStream_t::swap(memoryStream_t &stream) noexcept
+{
+	std::swap(memory, stream.memory);
+	std::swap(length, stream.length);
+	std::swap(pos, stream.pos);
+}
 
 zlibStream_t::zlibStream_t(stream_t &sourceStream, const mode_t streamMode) :
 	source{sourceStream}, mode{streamMode}, stream{}, bufferUsed{}, bufferAvail{},
