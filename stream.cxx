@@ -59,7 +59,7 @@ void memoryStream_t::swap(memoryStream_t &stream) noexcept
 }
 
 zlibStream_t::zlibStream_t(stream_t &sourceStream, const mode_t streamMode) :
-	source{sourceStream}, mode{streamMode}, stream{}, bufferUsed{}, bufferAvail{},
+	source{&sourceStream}, mode{streamMode}, stream{}, bufferUsed{}, bufferAvail{},
 	bufferIn{}, bufferOut{}, eos{false}
 {
 	memset(&stream, 0, sizeof(z_stream));
@@ -86,7 +86,7 @@ bool zlibStream_t::read(void *const value, const size_t valueLen, size_t &countR
 		if (!stream.avail_in && bufferUsed == bufferAvail && !eos)
 		{
 			size_t amount = 0;
-			if (!source.read(bufferIn, chunkLen, amount))
+			if (!source->read(bufferIn, chunkLen, amount))
 				return false;
 			stream.next_in = bufferIn;
 			stream.avail_in = amount;
@@ -115,5 +115,14 @@ bool zlibStream_t::read(void *const value, const size_t valueLen, size_t &countR
 	return true;
 }
 
-bool zlibStream_t::atEOF() const noexcept
-	{ return eos; }
+void zlibStream_t::clone(const zlibStream_t &_stream) noexcept
+{
+	source = _stream.source;
+	mode = _stream.mode;
+	stream = _stream.stream;
+	bufferUsed = _stream.bufferUsed;
+	bufferAvail = _stream.bufferAvail;
+	memcpy(bufferIn, _stream.bufferIn, chunkLen);
+	memcpy(bufferOut, _stream.bufferOut, chunkLen);
+	eos = _stream.eos;
+}

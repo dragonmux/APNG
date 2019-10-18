@@ -92,8 +92,8 @@ public:
 
 private:
 	constexpr static const uint32_t chunkLen = 8_KiB;
-	stream_t &source;
-	const mode_t mode;
+	stream_t *source;
+	mode_t mode;
 	z_stream stream;
 	uint32_t bufferUsed;
 	uint32_t bufferAvail;
@@ -101,12 +101,21 @@ private:
 	uint8_t bufferOut[chunkLen];
 	bool eos;
 
+	zlibStream_t() noexcept : source{}, mode{mode_t::inflate}, stream{}, bufferUsed{}, bufferAvail{},
+		bufferIn{}, bufferOut{}, eos{true} { }
+
 public:
 	zlibStream_t(stream_t &sourceStream, const mode_t streamMode);
+	zlibStream_t(const zlibStream_t &stream) noexcept : zlibStream_t{} { clone(stream); }
 	~zlibStream_t() noexcept;
+	void operator =(const zlibStream_t &stream) noexcept { clone(stream); }
 
 	bool read(void *const value, const size_t valueLen, size_t &countRead) final override;
-	bool atEOF() const noexcept final override;
+	bool atEOF() const noexcept final override { return eos; }
+
+	void clone(const zlibStream_t &stream) noexcept;
+	zlibStream_t(zlibStream_t &&) = delete;
+	zlibStream_t &operator =(zlibStream_t &&) = delete;
 };
 
 #endif /*STREAM__HXX*/
