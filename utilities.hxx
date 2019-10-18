@@ -24,9 +24,9 @@ public:
 };
 
 inline uint16_t read16(const uint8_t *const value) noexcept
-	{ return (uint16_t(value[0]) << 8) | uint16_t(value[1]); }
+	{ return (uint16_t(value[0]) << 8U) | uint16_t(value[1]); }
 inline uint32_t read32(const uint8_t *const value) noexcept
-	{ return (uint32_t(value[0]) << 24) | (uint32_t(value[1]) << 16) | (uint32_t(value[2]) << 8) | uint32_t(value[3]); }
+	{ return (uint32_t(value[0]) << 24U) | (uint32_t(value[1]) << 16U) | (uint32_t(value[2]) << 8U) | uint32_t(value[3]); }
 
 template<typename T> struct makeUnique_ { using uniqueType = std::unique_ptr<T>; };
 template<typename T> struct makeUnique_<T []> { using arrayType = std::unique_ptr<T []>; };
@@ -48,18 +48,17 @@ template<typename T, typename... args_t> inline typename makeUnique_<T>::invalid
 
 uint32_t swap32(const uint32_t i) noexcept
 {
-	return ((i >> 24) & 0xFF) | ((i >> 8) & 0xFF00) | ((i & 0xFF00) << 8) | ((i & 0xFF) << 24);
+	return ((i >> 24U) & 0xFF) | ((i >> 8U) & 0xFF00) | ((i & 0xFF00) << 8U) | ((i & 0xFF) << 24U);
 }
 void swap(uint32_t &i) noexcept { i = swap32(i); }
 
 uint16_t swap16(const uint16_t i) noexcept
 {
-	return ((i >> 8) & 0xFF) | ((i & 0xFF) << 8);
+	return ((i >> 8U) & 0xFF) | ((i & 0xFF) << 8U);
 }
 void swap(uint16_t &i) noexcept { i = swap16(i); }
 
-template<typename T> bool contains(const std::vector<T> &list,
-	bool condition(const T &)) noexcept
+template<typename T> bool contains(const std::vector<T> &list, bool condition(const T &)) noexcept
 {
 	for (const T &item : list)
 	{
@@ -100,8 +99,7 @@ template<typename T> std::vector<typename std::vector<T>::const_iterator> extrac
 	return result;
 }
 
-template<typename T> const T *extractFirst(const std::vector<T> &list,
-	bool condition(const T &)) noexcept
+template<typename T> const T *extractFirst(const std::vector<T> &list, bool condition(const T &)) noexcept
 {
 	for (const T &item : list)
 	{
@@ -111,20 +109,17 @@ template<typename T> const T *extractFirst(const std::vector<T> &list,
 	return nullptr;
 }
 
-template<typename T> bool isBefore(const T *a, const T *b) noexcept
-	{ return a < b; }
-
-template<typename T> bool isAfter(const T *a, const T *b) noexcept
-	{ return a > b; }
+template<typename T> bool isBefore(const T *a, const T *b) noexcept { return a < b; }
+template<typename T> bool isAfter(const T *a, const T *b) noexcept { return a > b; }
 
 template<typename T> struct pngRGB_t
 {
 public:
-	T r; T g; T b;
+	T r, g, b;
 
 	using type = T;
-	constexpr pngRGB_t() noexcept : r(0), g(0), b(0) { }
-	constexpr pngRGB_t(const T _r, const T _g, const T _b) noexcept : r(_r), g(_g), b(_b) { }
+	constexpr pngRGB_t() noexcept : r{}, g{}, b{} { }
+	constexpr pngRGB_t(const T _r, const T _g, const T _b) noexcept : r{_r}, g{_g}, b{_b} { }
 	bool operator ==(const pngRGB_t<T> &pixel) const noexcept { return r == pixel.r && g == pixel.g && b == pixel.b; }
 	pngRGB_t<T> operator +(const pngRGB_t<T> &pixel) const noexcept
 		{ return {T(r + pixel.r), T(g + pixel.g), T(b + pixel.b)}; }
@@ -141,9 +136,9 @@ public:
 
 	pngRGB_t<uint16_t> &operator +=(const pngRGB_t<uint16_t> &pixel) noexcept
 	{
-		r = (uint8_t((r >> 8) + (pixel.r >> 8)) << 8) | uint8_t(r + pixel.r);
-		g = (uint8_t((g >> 8) + (pixel.g >> 8)) << 8) | uint8_t(g + pixel.g);
-		b = (uint8_t((b >> 8) + (pixel.b >> 8)) << 8) | uint8_t(b + pixel.b);
+		r = uint16_t((uint8_t(r >> 8U) + uint8_t(pixel.r >> 8U)) << 8U) | uint8_t(r + pixel.r);
+		g = uint16_t((uint8_t(g >> 8U) + uint8_t(pixel.g >> 8U)) << 8U) | uint8_t(g + pixel.g);
+		b = uint16_t((uint8_t(b >> 8U) + uint8_t(pixel.b >> 8U)) << 8U) | uint8_t(b + pixel.b);
 		return *this;
 	}
 };
@@ -174,7 +169,7 @@ public:
 	pngRGBA_t<uint16_t> &operator +=(const pngRGBA_t<uint16_t> &pixel) noexcept
 	{
 		*static_cast<pngRGBn_t *>(this) += pngRGBn_t(pixel);
-		a = (uint8_t((a >> 8) + (pixel.a >> 8)) << 8) | uint8_t(a + pixel.a);
+		a = (uint8_t((a >> 8U) + (pixel.a >> 8U)) << 8U) | uint8_t(a + pixel.a);
 		return *this;
 	}
 };
@@ -203,7 +198,7 @@ public:
 
 	pngGrey_t<uint16_t> &operator +=(const pngGrey_t<uint16_t> &pixel) noexcept
 	{
-		v = (uint8_t((v >> 8) + (pixel.v >> 8)) << 8) | uint8_t(v + pixel.v);
+		v = (uint8_t((v >> 8U) + (pixel.v >> 8U)) << 8U) | uint8_t(v + pixel.v);
 		return *this;
 	}
 };
@@ -234,7 +229,7 @@ public:
 	pngGreyA_t<uint16_t> &operator +=(const pngGreyA_t<uint16_t> &pixel) noexcept
 	{
 		*static_cast<pngGreyN_t *>(this) += pngGreyN_t(pixel);
-		a = (uint8_t((a >> 8) + (pixel.a >> 8)) << 8) | uint8_t(a + pixel.a);
+		a = (uint8_t((a >> 8U) + (pixel.a >> 8U)) << 8U) | uint8_t(a + pixel.a);
 		return *this;
 	}
 };
@@ -272,7 +267,7 @@ template<typename T> T filterAverage(const T *const data, const bitmapRegion_t &
 {
 	const T left = safeIndex(data, x - 1, y * frame.width());
 	const T up = safeIndex(data, x, (y - 1) * frame.width());
-	return (up >> 1) + (left >> 1) + ((up & left) & 1);
+	return (up >> 1U) + (left >> 1U) + ((up & left) & 1U);
 }
 
 uint8_t filterPaeth(const uint8_t a, const uint8_t b, const uint8_t c) noexcept
@@ -293,7 +288,7 @@ uint16_t filterPaeth(const uint16_t a, const uint16_t b, const uint16_t c) noexc
 {
 	const uint16_t upper = filterPaeth(uint8_t(a >> 8), uint8_t(b >> 8), uint8_t(c >> 8));
 	const uint16_t lower = filterPaeth(uint8_t(a), uint8_t(b), uint8_t(c));
-	return (upper << 8) | lower;
+	return (upper << 8U) | lower;
 }
 
 template<typename T> pngRGB_t<T> filterPaeth(pngRGB_t<T> a, pngRGB_t<T> b, pngRGB_t<T> c) noexcept
@@ -341,7 +336,7 @@ template<typename T> filter_t<T> selectFilter(const filterTypes_t filter) noexce
 
 template<typename T, bool copyFunc(stream_t &, T &)> bool copyFrame(stream_t &stream, void *const dataPtr, const bitmapRegion_t frame) noexcept
 {
-	T *const data = static_cast<T *const>(dataPtr);
+	const auto data = static_cast<T *>(dataPtr);
 	const uint32_t width = frame.width();
 	const uint32_t height = frame.height();
 	for (uint32_t y = 0; y < height; ++y)
@@ -369,7 +364,7 @@ template<typename T> T compOver(const T a, const T b, const T alpha) noexcept
 {
 	constexpr const T max = std::numeric_limits<T>::max();
 	constexpr const uint8_t bits = std::numeric_limits<T>::digits;
-	return T(((max - alpha + 1) * a) >> bits) + T(((alpha + 1) * b) >> bits);
+	return T(((max - alpha + 1U) * a) >> bits) + T(((alpha + 1U) * b) >> bits);
 }
 
 template<blendOp_t::_blendOp_t op, typename T> T compOp(const T a, const T b, const T alpha) noexcept
