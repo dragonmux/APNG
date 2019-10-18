@@ -59,7 +59,7 @@ public:
 		if (atEOF())
 			return false;
 
-		auto buffer = reinterpret_cast<uint8_t *>(value);
+		auto buffer = static_cast<uint8_t *>(value);
 		actualLen = 0;
 		while (actualLen < valueLen && !atEOF())
 		{
