@@ -239,7 +239,7 @@ apng_t::apng_t(stream_t &stream) : transColourValid(false)
 
 void apng_t::checkSig(stream_t &stream)
 {
-	std::array<uint8_t, 8> sig;
+	std::array<uint8_t, 8> sig{};
 	stream.read(sig);
 	if (sig != pngSig)
 		throw invalidPNG_t{};
