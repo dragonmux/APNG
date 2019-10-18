@@ -28,6 +28,24 @@ inline uint16_t read16(const uint8_t *const value) noexcept
 inline uint32_t read32(const uint8_t *const value) noexcept
 	{ return (uint32_t(value[0]) << 24) | (uint32_t(value[1]) << 16) | (uint32_t(value[2]) << 8) | uint32_t(value[3]); }
 
+template<typename T> struct makeUnique_ { using uniqueType = std::unique_ptr<T>; };
+template<typename T> struct makeUnique_<T []> { using arrayType = std::unique_ptr<T []>; };
+template<typename T, size_t N> struct makeUnique_<T [N]> { struct invalidType { }; };
+
+template<typename T, typename... args_t> inline typename makeUnique_<T>::uniqueType makeUnique(args_t &&...args)
+{
+	using type_t = typename std::remove_const<T>::type;
+	return std::unique_ptr<T>(new type_t(std::forward<args_t>(args)...));
+}
+
+template<typename T> inline typename makeUnique_<T>::arrayType makeUnique(const size_t num)
+{
+	using type_t = typename std::remove_const<typename std::remove_extent<T>::type>::type;
+	return std::unique_ptr<T>(new type_t[num]());
+}
+
+template<typename T, typename... args_t> inline typename makeUnique_<T>::invalidType makeUniqueT(args_t &&...) noexcept = delete;
+
 uint32_t swap32(const uint32_t i) noexcept
 {
 	return ((i >> 24) & 0xFF) | ((i >> 8) & 0xFF00) | ((i & 0xFF00) << 8) | ((i & 0xFF) << 24);

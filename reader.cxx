@@ -23,7 +23,7 @@ chunk_t chunk_t::loadChunk(stream_t &stream)
 		!stream.read(chunk._chunkType.type()))
 		throw invalidPNG_t{};
 	swap(chunk._length);
-	chunk._chunkData.reset(new uint8_t[chunk._length]);
+	chunk._chunkData = makeUnique<uint8_t []>(chunk._length);
 	uint32_t crcRead, crcCalc;
 	if (!stream.read(chunk._chunkData.get(), chunk._length) ||
 		!stream.read(crcRead))
