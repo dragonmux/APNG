@@ -159,7 +159,7 @@ apng_t::apng_t(stream_t &stream) : transColourValid(false)
 		auto palettes = extract(chunks, isPLTE);
 		if ((_colourType == colourType_t::palette && palettes.size() != 1) || palettes.size() > 1)
 			throw invalidPNG_t{};
-		if (palettes.size())
+		if (!palettes.empty())
 		{
 			const chunk_t *palette = palettes[0];
 			if ((palette->length() % 3) != 0)
@@ -175,7 +175,7 @@ apng_t::apng_t(stream_t &stream) : transColourValid(false)
 		auto transChunks = extract(chunks, isTRNS);
 		if (transChunks.size() > 1)
 			throw invalidPNG_t{};
-		if (transChunks.size())
+		if (!transChunks.empty())
 		{
 			const chunk_t *trans = transChunks[0];
 			if ((_colourType == colourType_t::rgb && trans->length() != 6) ||
