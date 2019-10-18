@@ -128,7 +128,7 @@ template<typename ...values_t> uint64_t safeMul(const uint64_t a, const uint64_t
 	{ return safeMul(safeMul(a, b), values...); }
 
 bitmap_t::bitmap_t(const uint32_t width, const uint32_t height, const pixelFormat_t format) :
-	_width(width), _height(height), _format(format), transValueValid(false)
+	_data{}, _width(width), _height(height), _format(format), transValueValid(false), transValue{}
 {
 	uint8_t bytes;
 	if (_format == pixelFormat_t::format8bppGrey)
@@ -152,7 +152,7 @@ bitmap_t::bitmap_t(const uint32_t width, const uint32_t height, const pixelForma
 	memset(_data.get(), 0, length);
 }
 
-apng_t::apng_t(stream_t &stream) : transColourValid(false), transColour{}
+apng_t::apng_t(stream_t &stream) : _defaultFrame{}, transColourValid(false), transColour{}
 {
 	chunkList_t chunks;
 	checkSig(stream);
