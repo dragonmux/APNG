@@ -51,15 +51,15 @@ private:
 	const uint8_t *data() const noexcept { return _chunks[chunk]->data() + (isSequence ? 4 : 0); }
 
 public:
-	chunkStream_t(const chunkList_t chunks, const bool sequence = false, const size_t seqIndex = 0) noexcept : _chunks(chunks), chunk(0), pos(0),
-		isSequence(sequence), sequenceIndex(seqIndex) { }
+	chunkStream_t(const chunkList_t chunks, const bool sequence = false, const size_t seqIndex = 0) noexcept : _chunks{chunks}, chunk{}, pos{},
+		isSequence{sequence}, sequenceIndex{seqIndex} { }
 
 	bool read(void *const value, const size_t valueLen, size_t &actualLen) final override
 	{
 		if (atEOF())
 			return false;
 
-		uint8_t *const buffer = reinterpret_cast<uint8_t *const>(value);
+		auto buffer = reinterpret_cast<uint8_t *>(value);
 		actualLen = 0;
 		while (actualLen < valueLen && !atEOF())
 		{
@@ -295,7 +295,8 @@ bool apng_t::processFrame(stream_t &stream, bitmap_t &frame)
 	else if (_colourType == colourType_t::greyscale)
 	{
 		// 1, 2, 4 here..
-		/*else*/ if (_bitDepth == bitDepth_t::bps8)
+		/*else*/
+		if (_bitDepth == bitDepth_t::bps8)
 			return copyFrame<pngGrey8_t, readGrey>(stream, data, region);
 		else if (_bitDepth == bitDepth_t::bps16)
 			return copyFrame<pngGrey16_t, readGrey>(stream, data, region);
@@ -313,7 +314,7 @@ bool apng_t::processFrame(stream_t &stream, bitmap_t &frame)
 uint32_t apng_t::processDefaultFrame(const chunkList_t &chunks, const bool isSequenceFrame, const chunk_t &controlChunk)
 {
 	chunkStream_t chunkStream(extract(chunks, isIDAT));
-	zlibStream_t frameData(chunkStream, zlibStream_t::inflate);
+	zlibStream_t frameData{chunkStream, zlibStream_t::inflate};
 	_defaultFrame = new bitmap_t(_width, _height, pixelFormat());
 	if (isSequenceFrame)
 	{
