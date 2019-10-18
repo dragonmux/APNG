@@ -333,8 +333,8 @@ private:
 struct APNG_API invalidPNG_t : public std::exception
 {
 public:
-	invalidPNG_t() noexcept;
-	const char *what() const noexcept;
+	invalidPNG_t() noexcept = default;
+	const char *what() const noexcept { return "Invalid PNG file"; }
 };
 
 #endif /*APNG_HXX*/

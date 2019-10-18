@@ -21,18 +21,18 @@ chunk_t chunk_t::loadChunk(stream_t &stream)
 	chunk_t chunk;
 	if (!stream.read(chunk._length) ||
 		!stream.read(chunk._chunkType.type()))
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 	swap(chunk._length);
 	chunk._chunkData.reset(new uint8_t[chunk._length]);
 	uint32_t crcRead, crcCalc;
 	if (!stream.read(chunk._chunkData.get(), chunk._length) ||
 		!stream.read(crcRead))
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 	swap(crcRead);
 	crc32_t::crc(crcCalc = 0, chunk._chunkType.type());
 	crc32_t::crc(crcCalc, chunk._chunkData.get(), chunk._length);
 	if (crcCalc != crcRead)
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 	return chunk;
 }
 
@@ -70,7 +70,7 @@ public:
 			{
 				const uint32_t sequenceNum = *reinterpret_cast<const uint32_t *>(_chunks[chunk]->data());
 				if (swap32(sequenceNum) != ++sequenceIndex)
-					throw invalidPNG_t();
+					throw invalidPNG_t{};
 			}
 
 			memcpy(buffer + actualLen, data() + pos, amount);
@@ -127,7 +127,7 @@ bitmap_t::bitmap_t(const uint32_t width, const uint32_t height, const pixelForma
 	else if (_format == pixelFormat_t::format64bppRGBA)
 		bytes = 8;
 	else
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 	const size_t length = width * height * bytes;
 	_data.reset(new uint8_t[length]);
 	memset(_data.get(), 0, length);
@@ -140,14 +140,14 @@ apng_t::apng_t(stream_t &stream) : transColourValid(false)
 
 	chunk_t header = chunk_t::loadChunk(stream);
 	if (!isIHDR(header) || header.length() != 13)
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 	const uint8_t *const headerData = header.data();
 	_width = swap32(reinterpret_cast<const uint32_t *const>(headerData)[0]);
 	_height = swap32(reinterpret_cast<const uint32_t *const>(headerData)[1]);
 	_bitDepth = bitDepth_t(headerData[8]);
 	_colourType = colourType_t(headerData[9]);
 	if (headerData[10] || headerData[11])
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 	_interlacing = interlace_t(headerData[12]);
 	validateHeader();
 
@@ -158,29 +158,29 @@ apng_t::apng_t(stream_t &stream) : transColourValid(false)
 	{
 		auto palettes = extract(chunks, isPLTE);
 		if ((_colourType == colourType_t::palette && palettes.size() != 1) || palettes.size() > 1)
-			throw invalidPNG_t();
+			throw invalidPNG_t{};
 		if (palettes.size())
 		{
 			const chunk_t *palette = palettes[0];
 			if ((palette->length() % 3) != 0)
-				throw invalidPNG_t();
+				throw invalidPNG_t{};
 			// process palette.
 		}
 	}
 	else if (contains(chunks, isPLTE))
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 
 	if (_colourType == colourType_t::rgb || _colourType == colourType_t::greyscale)
 	{
 		auto transChunks = extract(chunks, isTRNS);
 		if (transChunks.size() > 1)
-			throw invalidPNG_t();
+			throw invalidPNG_t{};
 		if (transChunks.size())
 		{
 			const chunk_t *trans = transChunks[0];
 			if ((_colourType == colourType_t::rgb && trans->length() != 6) ||
 				(_colourType == colourType_t::greyscale && trans->length() != 2))
-				throw invalidPNG_t();
+				throw invalidPNG_t{};
 			if (_colourType == colourType_t::rgb)
 			{
 				const pngRGB16_t colour = *reinterpret_cast<const pngRGB16_t *const>(trans->data());
@@ -200,16 +200,16 @@ apng_t::apng_t(stream_t &stream) : transColourValid(false)
 	const chunk_t &end = chunks.back();
 	chunks.pop_back();
 	if (!isIEND(end) || end.length() != 0)
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 
 	const chunk_t *const acTL = extractFirst(chunks, isACTL);
 	if (!acTL || extract(chunks, isACTL).size() != 1 || acTL->length() != 8)
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 	controlChunk = acTL_t::reinterpret(*acTL);
 	controlChunk.check(chunks);
 
 	if (!contains(chunks, isIDAT) || isAfter(acTL, extractFirst(chunks, isIDAT)) || !contains(chunks, isFCTL))
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 	const auto fcTLChunks = extractIters(chunks, isFCTL);
 	const chunk_t &fcTL = *fcTLChunks[0];
 	uint32_t i = processDefaultFrame(chunks, isBefore(&fcTL, extractFirst(chunks, isIDAT)), fcTL);
@@ -223,20 +223,20 @@ void apng_t::checkSig(stream_t &stream)
 	std::array<uint8_t, 8> sig;
 	stream.read(sig);
 	if (sig != pngSig)
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 }
 
 void apng_t::validateHeader()
 {
 	if (!_width || !_height || (_width >> 31) || (_height >> 31))
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 	if (_colourType == colourType_t::rgb || _colourType == colourType_t::greyscaleAlpha || _colourType == colourType_t::rgba)
 	{
 		if (_bitDepth != bitDepth_t::bps8 && _bitDepth != bitDepth_t::bps16)
-			throw invalidPNG_t();
+			throw invalidPNG_t{};
 	}
 	else if (_colourType == colourType_t::palette && _bitDepth == bitDepth_t::bps16)
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 }
 
 pixelFormat_t apng_t::pixelFormat() const
@@ -271,7 +271,7 @@ pixelFormat_t apng_t::pixelFormat() const
 		else if (_bitDepth == bitDepth_t::bps16)
 			return pixelFormat_t::format16bppGreyA;
 	}
-	throw invalidPNG_t();
+	throw invalidPNG_t{};
 }
 
 bool apng_t::processFrame(stream_t &stream, bitmap_t &frame)
@@ -326,7 +326,7 @@ uint32_t apng_t::processDefaultFrame(const chunkList_t &chunks, const bool isSeq
 		defaultFrameStorage.reset(_defaultFrame);
 
 	if (!processFrame(frameData, *_defaultFrame))
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 
 	// Return what the first unread animation frame index is.
 	return isSequenceFrame ? 1 : 0;
@@ -365,7 +365,7 @@ void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chun
 	zlibStream_t frameData(chunkStream, zlibStream_t::inflate);
 	bitmap_t partialFrame(fcTL.width(), fcTL.height(), format);
 	if (!processFrame(frameData, partialFrame))
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 	if (transColourValid)
 		partialFrame.transparent(transColour);
 
@@ -410,7 +410,7 @@ acTL_t::acTL_t(const uint8_t *const data) noexcept : _frames{read32(&data[0])}, 
 void acTL_t::check(const std::vector<chunk_t> &chunks) const
 {
 	if (_frames != extract(chunks, isFCTL).size() && !_frames)
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 }
 
 acTL_t acTL_t::reinterpret(const chunk_t &chunk)
@@ -434,11 +434,11 @@ fcTL_t fcTL_t::reinterpret(const chunk_t &chunk, const uint32_t frame)
 void fcTL_t::check(const uint32_t pngWidth, const uint32_t pngHeight, const bool first)
 {
 	if (!_width || !_height || (_xOffset + _width) > pngWidth || (_yOffset + _height) > pngHeight)
-		throw invalidPNG_t();
+		throw invalidPNG_t{};
 	if (first)
 	{
 		if (_width != pngWidth || _height != pngHeight || _xOffset || _yOffset || _sequenceIndex || _frame)
-			throw invalidPNG_t();
+			throw invalidPNG_t{};
 		if (_disposeOp == disposeOp_t::previous)
 			_disposeOp = disposeOp_t::background;
 	}
@@ -456,11 +456,4 @@ void displayTime_t::waitFor() const noexcept
 	const std::chrono::seconds num(delayN);
 	const std::chrono::nanoseconds N(num);
 	std::this_thread::sleep_for(N / delayD);
-}
-
-invalidPNG_t::invalidPNG_t() noexcept { }
-
-const char *invalidPNG_t::what() const noexcept
-{
-	return "Invalid PNG file";
 }
