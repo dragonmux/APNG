@@ -1,8 +1,8 @@
 #ifndef APNG_HXX
 #define APNG_HXX
 
-#include <stdint.h>
-#include <stddef.h>
+#include <cstdint>
+#include <cstddef>
 #include <exception>
 #include <array>
 #include <vector>

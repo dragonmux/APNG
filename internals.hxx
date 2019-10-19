@@ -1,7 +1,7 @@
 #ifndef INTERNALS_HXX
 #define INTERNALS_HXX
 
-#include <stdint.h>
+#include <cstdint>
 #include <memory>
 #include <array>
 #include <vector>
