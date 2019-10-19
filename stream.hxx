@@ -22,9 +22,9 @@ protected:
 public:
 	virtual ~stream_t() = default;
 
-	template<typename T> bool read(T &value) noexcept
+	template<typename T> bool read(T &value)
 		{ return read(&value, sizeof(T)); }
-	template<typename T, size_t N> bool read(std::array<T, N> &value) noexcept
+	template<typename T, size_t N> bool read(std::array<T, N> &value)
 		{ return read(value.data(), N); }
 
 	bool read(void *const value, const size_t valueLen)
