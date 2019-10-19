@@ -404,12 +404,19 @@ template<> inline pngRGB16_t bitmap_t::transparent<pngRGB16_t>() const noexcept 
 template<> inline pngGrey8_t bitmap_t::transparent<pngGrey8_t>() const noexcept { return pixelFromTransGrey<uint8_t>(transValue[0]); }
 template<> inline pngGrey16_t bitmap_t::transparent<pngGrey16_t>() const noexcept { return pixelFromTransGrey<uint16_t>(transValue[0]); }
 
+template<typename T> T as(const uint8_t *const data, const size_t index) noexcept
+{
+	T result{};
+	const size_t offset = index * sizeof(T);
+	memcpy(&result, data + offset, sizeof(T));
+	return result;
+}
+
 template<typename T> void compFrame(T compFunc(const T, const T, const typename T::type), const bitmap_t &source, bitmap_t &destination,
 	const uint32_t xOffset, const uint32_t yOffset) noexcept
 {
 	if ((source.width() + xOffset) > destination.width() || (source.height() + yOffset) > destination.height())
 		return;
-	const auto srcData = reinterpret_cast<const T *>(source.data());
 	const auto dstData = reinterpret_cast<T *>(destination.data());
 	const uint32_t width = source.width();
 	const uint32_t height = source.height();
@@ -422,10 +429,11 @@ template<typename T> void compFrame(T compFunc(const T, const T, const typename 
 		{
 			const uint32_t offsetSrc = x + (y * width);
 			const uint32_t offsetDst = (x + xOffset) + ((y + yOffset) * destination.width());
+			const auto srcValue = as<T>(source.data(), offsetSrc);
 			if (source.hasTransparency())
-				dstData[offsetDst] = compFunc(dstData[offsetDst], srcData[offsetSrc], trans == srcData[offsetSrc] ? 0 : max);
+				dstData[offsetDst] = compFunc(dstData[offsetDst], srcValue, trans == srcValue ? 0 : max);
 			else
-				dstData[offsetDst] = compFunc(dstData[offsetDst], srcData[offsetSrc], max);
+				dstData[offsetDst] = compFunc(dstData[offsetDst], srcValue, max);
 		}
 	}
 }
