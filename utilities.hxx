@@ -336,7 +336,7 @@ template<typename T> filter_t<T> selectFilter(const filterTypes_t filter) noexce
 	}
 }
 
-template<typename T, bool copyFunc(stream_t &, T &)> bool copyFrame(stream_t &stream, void *const dataPtr, const bitmapRegion_t frame) noexcept
+template<typename T, bool copyFunc(stream_t &, T &)> bool copyFrame(stream_t &stream, void *const dataPtr, const bitmapRegion_t frame)
 {
 	const auto data = static_cast<T *>(dataPtr);
 	const uint32_t width = frame.width();
