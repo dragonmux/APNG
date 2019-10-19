@@ -46,17 +46,17 @@ template<typename T> inline typename makeUnique_<T>::arrayType makeUnique(const 
 
 template<typename T, typename... args_t> inline typename makeUnique_<T>::invalidType makeUniqueT(args_t &&...) noexcept = delete;
 
-uint32_t swap32(const uint32_t i) noexcept
+inline uint32_t swap32(const uint32_t i) noexcept
 {
 	return ((i >> 24U) & 0xFF) | ((i >> 8U) & 0xFF00) | ((i & 0xFF00) << 8U) | ((i & 0xFF) << 24U);
 }
-void swap(uint32_t &i) noexcept { i = swap32(i); }
+inline void swap(uint32_t &i) noexcept { i = swap32(i); }
 
-uint16_t swap16(const uint16_t i) noexcept
+inline uint16_t swap16(const uint16_t i) noexcept
 {
 	return ((i >> 8U) & 0xFF) | ((i & 0xFF) << 8U);
 }
-void swap(uint16_t &i) noexcept { i = swap16(i); }
+inline void swap(uint16_t &i) noexcept { i = swap16(i); }
 
 template<typename T> bool contains(const std::vector<T> &list, bool condition(const T &)) noexcept
 {
@@ -85,12 +85,12 @@ template<typename T> std::vector<const T *> extract(const std::vector<T> &list,
 	bool condition(const T &)) noexcept
 	{ return extract(list.begin(), list.end(), condition); }
 
-template<typename T> std::vector<typename std::vector<T>::const_iterator> extractIters(const std::vector<T> &list,
-	bool condition(const T &)) noexcept
+template<typename T> std::vector<typename std::vector<T>::const_iterator>
+	extractIters(const std::vector<T> &list, bool condition(const T &)) noexcept
 {
 	using listIter_t = typename std::vector<T>::const_iterator;
 	std::vector<listIter_t> result;
-	for (listIter_t iter = list.begin(); iter != list.end(); ++iter)
+	for (auto iter = list.begin(); iter != list.end(); ++iter)
 	{
 		const T &item = *iter;
 		if (condition(item))
