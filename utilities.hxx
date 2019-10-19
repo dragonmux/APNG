@@ -212,17 +212,18 @@ public:
 	using pngGreyN_t = pngGrey_t<T>;
 	constexpr pngGreyA_t() noexcept : pngGrey_t<T>(), a(0) { }
 	constexpr pngGreyA_t(const pngGreyN_t grey, const T _a) noexcept : pngGreyN_t(grey), a(_a) { }
-	bool operator ==(const pngGreyA_t<T> &pixel) const noexcept { return pngGreyN_t(*this) == pngGreyN_t(pixel) && a == pixel.a; }
+	bool operator ==(const pngGreyA_t<T> &pixel) const noexcept
+		{ return static_cast<const pngGreyN_t &>(*this) == static_cast<const pngGreyN_t &>(pixel) && a == pixel.a; }
 	pngGreyA_t<T> operator +(const pngGreyA_t<T> &pixel) const noexcept
-		{ return {pngGreyN_t(*this) + pngGreyN_t(pixel), T(a + pixel.a)}; }
+		{ return {static_cast<const pngGreyN_t &>(*this) + static_cast<const pngGreyN_t &>(pixel), T(a + pixel.a)}; }
 	pngGreyA_t<T> operator -(const pngGreyA_t<T> &pixel) const noexcept
-		{ return {pngGreyN_t(*this) - pngGreyN_t(pixel), T(a - pixel.a)}; }
+		{ return {static_cast<const pngGreyN_t &>(*this) - static_cast<const pngGreyN_t &>(pixel), T(a - pixel.a)}; }
 	pngGreyA_t<T> operator >>(const uint8_t amount) const noexcept
-		{ return {pngGreyN_t(*this) >> amount, T(a >> amount)}; }
+		{ return {static_cast<const pngGreyN_t &>(*this) >> amount, T(a >> amount)}; }
 	pngGreyA_t<T> operator &(const T mask) const noexcept
-		{ return {pngGreyN_t(*this) & mask, T(a & mask)}; }
+		{ return {static_cast<const pngGreyN_t &>(*this) & mask, T(a & mask)}; }
 	pngGreyA_t<T> operator &(const pngGreyA_t<T> &mask) const noexcept
-		{ return {pngGreyN_t(*this) & pngGreyN_t(mask), T(a & mask.a)}; }
+		{ return {static_cast<const pngGreyN_t &>(*this) & static_cast<const pngGreyN_t &>(mask), T(a & mask.a)}; }
 	pngGreyA_t<uint8_t> &operator +=(const pngGreyA_t<uint8_t> &pixel) noexcept
 		{ return *static_cast<pngGreyN_t *>(this) += static_cast<const pngGreyN_t &>(pixel), a += pixel.a, *this; }
 
