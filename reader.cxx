@@ -337,7 +337,7 @@ uint32_t apng_t::processDefaultFrame(const chunkList_t &chunks, const bool isSeq
 	{
 		fcTL_t fcTL = fcTL_t::reinterpret(controlChunk, 0);
 		fcTL.check(_width, _height, true);
-		_frames.emplace_back(std::make_pair(std::move(fcTL), std::move(frame)));
+		_frames.emplace_back(std::make_pair(fcTL, std::move(frame)));
 	}
 	else
 		defaultFrameStorage = std::move(frame);
@@ -408,7 +408,7 @@ void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chun
 		compositFrame<blendOp_t::source>(partialFrame, *frame, format, fcTL);
 	else
 		compositFrame<blendOp_t::over>(partialFrame, *frame, format, fcTL);
-	_frames.emplace_back(std::make_pair(std::move(fcTL), std::move(frame)));
+	_frames.emplace_back(std::make_pair(fcTL, std::move(frame)));
 }
 
 std::vector<std::pair<const displayTime_t, const bitmap_t *const>> apng_t::frames() const noexcept
