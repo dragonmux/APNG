@@ -48,13 +48,13 @@ template<typename T, typename... args_t> inline typename makeUnique_<T>::invalid
 
 inline uint32_t swap32(const uint32_t i) noexcept
 {
-	return ((i >> 24U) & 0xFF) | ((i >> 8U) & 0xFF00) | ((i & 0xFF00) << 8U) | ((i & 0xFF) << 24U);
+	return ((i >> 24U) & 0xFFU) | ((i >> 8U) & 0xFF00U) | ((i & 0xFF00U) << 8U) | ((i & 0xFFU) << 24U);
 }
 inline void swap(uint32_t &i) noexcept { i = swap32(i); }
 
 inline uint16_t swap16(const uint16_t i) noexcept
 {
-	return ((i >> 8U) & 0xFF) | ((i & 0xFF) << 8U);
+	return ((i >> 8U) & 0xFFU) | ((i & 0xFFU) << 8U);
 }
 inline void swap(uint16_t &i) noexcept { i = swap16(i); }
 
@@ -136,9 +136,9 @@ public:
 
 	pngRGB_t<uint16_t> &operator +=(const pngRGB_t<uint16_t> &pixel) noexcept
 	{
-		r = uint16_t((uint8_t(r >> 8U) + uint8_t(pixel.r >> 8U)) << 8U) | uint8_t(r + pixel.r);
-		g = uint16_t((uint8_t(g >> 8U) + uint8_t(pixel.g >> 8U)) << 8U) | uint8_t(g + pixel.g);
-		b = uint16_t((uint8_t(b >> 8U) + uint8_t(pixel.b >> 8U)) << 8U) | uint8_t(b + pixel.b);
+		r = uint16_t(uint8_t((r >> 8U) + (pixel.r >> 8U)) << 8U) | uint8_t(r + pixel.r);
+		g = uint16_t(uint8_t((g >> 8U) + (pixel.g >> 8U)) << 8U) | uint8_t(g + pixel.g);
+		b = uint16_t(uint8_t((b >> 8U) + (pixel.b >> 8U)) << 8U) | uint8_t(b + pixel.b);
 		return *this;
 	}
 };
@@ -170,7 +170,7 @@ public:
 	pngRGBA_t<uint16_t> &operator +=(const pngRGBA_t<uint16_t> &pixel) noexcept
 	{
 		*static_cast<pngRGBn_t *>(this) += static_cast<const pngRGBn_t &>(pixel);
-		a = (uint8_t((a >> 8U) + (pixel.a >> 8U)) << 8U) | uint8_t(a + pixel.a);
+		a = uint16_t(uint8_t((a >> 8U) + (pixel.a >> 8U)) << 8U) | uint8_t(a + pixel.a);
 		return *this;
 	}
 };
@@ -199,7 +199,7 @@ public:
 
 	pngGrey_t<uint16_t> &operator +=(const pngGrey_t<uint16_t> &pixel) noexcept
 	{
-		v = (uint8_t((v >> 8U) + (pixel.v >> 8U)) << 8U) | uint8_t(v + pixel.v);
+		v = uint16_t(uint8_t((v >> 8U) + (pixel.v >> 8U)) << 8U) | uint8_t(v + pixel.v);
 		return *this;
 	}
 };
@@ -231,7 +231,7 @@ public:
 	pngGreyA_t<uint16_t> &operator +=(const pngGreyA_t<uint16_t> &pixel) noexcept
 	{
 		*static_cast<pngGreyN_t *>(this) += static_cast<const pngGreyN_t &>(pixel);
-		a = (uint8_t((a >> 8U) + (pixel.a >> 8U)) << 8U) | uint8_t(a + pixel.a);
+		a = uint16_t(uint8_t((a >> 8U) + (pixel.a >> 8U)) << 8U) | uint8_t(a + pixel.a);
 		return *this;
 	}
 };
