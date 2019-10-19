@@ -1,6 +1,4 @@
-#ifndef APNG_HXX
 #include "apng.hxx"
-#endif
 
 #ifndef STREAM__HXX
 #define STREAM__HXX
