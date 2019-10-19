@@ -407,8 +407,8 @@ template<typename T> void compFrame(T compFunc(const T, const T, const typename 
 {
 	if ((source.width() + xOffset) > destination.width() || (source.height() + yOffset) > destination.height())
 		return;
-	const T *const srcData = static_cast<const T *const>(static_cast<const void *const>(source.data()));
-	T *const dstData = static_cast<T *const>(static_cast<void *const>(destination.data()));
+	const auto srcData = reinterpret_cast<const T *>(source.data());
+	const auto dstData = reinterpret_cast<T *>(destination.data());
 	const uint32_t width = source.width();
 	const uint32_t height = source.height();
 	const T trans = source.transparent<T>();

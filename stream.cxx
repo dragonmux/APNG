@@ -107,7 +107,7 @@ bool zlibStream_t::read(void *const value, const size_t valueLen, size_t &countR
 		}
 
 		const size_t blockLen = (countRead + bufferAvail - bufferUsed) < valueLen ? (bufferAvail - bufferUsed) : (valueLen - countRead);
-		memcpy(static_cast<char *const>(value) + countRead, bufferOut + bufferUsed, blockLen);
+		memcpy(static_cast<char *>(value) + countRead, bufferOut + bufferUsed, blockLen);
 		countRead += blockLen;
 		bufferUsed += blockLen;
 	}
