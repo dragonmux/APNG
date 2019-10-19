@@ -152,17 +152,18 @@ public:
 	using pngRGBn_t = pngRGB_t<T>;
 	constexpr pngRGBA_t() noexcept : pngRGB_t<T>(), a(0) { }
 	constexpr pngRGBA_t(const pngRGBn_t rgb, const T _a) : pngRGBn_t(rgb), a(_a) { }
-	bool operator ==(const pngRGBA_t<T> &pixel) const noexcept { return pngRGBn_t(*this) == pngRGBn_t(pixel) && a == pixel.a; }
+	bool operator ==(const pngRGBA_t<T> &pixel) const noexcept
+		{ return static_cast<const pngRGBn_t &>(*this) == static_cast<const pngRGBn_t &>(pixel) && a == pixel.a; }
 	pngRGBA_t<T> operator +(const pngRGBA_t<T> &pixel) const noexcept
-		{ return {pngRGBn_t(*this) + pngRGBn_t(pixel), T(a + pixel.a)}; }
+		{ return {static_cast<const pngRGBn_t &>(*this) + static_cast<const pngRGBn_t &>(pixel), T(a + pixel.a)}; }
 	pngRGBA_t<T> operator -(const pngRGBA_t<T> &pixel) const noexcept
-		{ return {pngRGBn_t(*this) - pngRGBn_t(pixel), T(a - pixel.a)}; }
+		{ return {static_cast<const pngRGBn_t &>(*this) - static_cast<const pngRGBn_t &>(pixel), T(a - pixel.a)}; }
 	pngRGBA_t<T> operator >>(const uint8_t amount) const noexcept
-		{ return {pngRGBn_t(*this) >> amount, T(a >> amount)}; }
+		{ return {static_cast<const pngRGBn_t &>(*this) >> amount, T(a >> amount)}; }
 	pngRGBA_t<T> operator &(const T mask) const noexcept
-		{ return {pngRGBn_t(*this) & mask, T(a & mask)}; }
+		{ return {static_cast<const pngRGBn_t &>(*this) & mask, T(a & mask)}; }
 	pngRGBA_t<T> operator &(const pngRGBA_t<T> &mask) const noexcept
-		{ return {pngRGBn_t(*this) & pngRGBn_t(mask), T(a & mask.a)}; }
+		{ return {static_cast<const pngRGBn_t &>(*this) & static_cast<const pngRGBn_t &>(mask), T(a & mask.a)}; }
 	pngRGBA_t<uint8_t> &operator +=(const pngRGBA_t<uint8_t> &pixel) noexcept
 		{ return *static_cast<pngRGBn_t *>(this) += static_cast<const pngRGBn_t &>(pixel), a += pixel.a, *this; }
 
