@@ -284,11 +284,11 @@ uint8_t filterPaeth(const uint8_t a, const uint8_t b, const uint8_t c) noexcept
 	return c;
 }
 
-uint16_t filterPaeth(const uint16_t a, const uint16_t b, const uint16_t c) noexcept
+inline uint16_t filterPaeth(const uint16_t a, const uint16_t b, const uint16_t c) noexcept
 {
-	const uint16_t upper = filterPaeth(uint8_t(a >> 8), uint8_t(b >> 8), uint8_t(c >> 8));
+	const uint16_t upper = filterPaeth(uint8_t(a >> 8U), uint8_t(b >> 8U), uint8_t(c >> 8U));
 	const uint16_t lower = filterPaeth(uint8_t(a), uint8_t(b), uint8_t(c));
-	return (upper << 8U) | lower;
+	return uint16_t(upper << 8U) | lower;
 }
 
 template<typename T> pngRGB_t<T> filterPaeth(pngRGB_t<T> a, pngRGB_t<T> b, pngRGB_t<T> c) noexcept
@@ -392,15 +392,15 @@ template<typename T, blendOp_t::_blendOp_t op, typename U = T> U compGrey(const 
 template<typename T, blendOp_t::_blendOp_t op> T compGreyA(const T pixelA, const T pixelB, const typename T::type) noexcept
 	{ return {compGrey<T, op, typename T::pngGreyN_t>(pixelA, pixelB, pixelB.a), compOpA<op>(pixelA.a, pixelB.a)}; }
 
-template<typename T> pngRGB_t<T> pixelFromTransRGB(const uint16_t *const transValue) noexcept
+template<typename T> inline pngRGB_t<T> pixelFromTransRGB(const uint16_t *const transValue) noexcept
 	{ return pngRGB_t<T>(transValue[0], transValue[1], transValue[2]); }
-template<typename T> pngGrey_t<T> pixelFromTransGrey(const uint16_t transValue) noexcept
+template<typename T> inline pngGrey_t<T> pixelFromTransGrey(const uint16_t transValue) noexcept
 	{ return pngGrey_t<T>(transValue); }
 
-template<> pngRGB8_t bitmap_t::transparent<pngRGB8_t>() const noexcept { return pixelFromTransRGB<uint8_t>(transValue); }
-template<> pngRGB16_t bitmap_t::transparent<pngRGB16_t>() const noexcept { return pixelFromTransRGB<uint16_t>(transValue); }
-template<> pngGrey8_t bitmap_t::transparent<pngGrey8_t>() const noexcept { return pixelFromTransGrey<uint8_t>(transValue[0]); }
-template<> pngGrey16_t bitmap_t::transparent<pngGrey16_t>() const noexcept { return pixelFromTransGrey<uint16_t>(transValue[0]); }
+template<> inline pngRGB8_t bitmap_t::transparent<pngRGB8_t>() const noexcept { return pixelFromTransRGB<uint8_t>(transValue); }
+template<> inline pngRGB16_t bitmap_t::transparent<pngRGB16_t>() const noexcept { return pixelFromTransRGB<uint16_t>(transValue); }
+template<> inline pngGrey8_t bitmap_t::transparent<pngGrey8_t>() const noexcept { return pixelFromTransGrey<uint8_t>(transValue[0]); }
+template<> inline pngGrey16_t bitmap_t::transparent<pngGrey16_t>() const noexcept { return pixelFromTransGrey<uint16_t>(transValue[0]); }
 
 template<typename T> void compFrame(T compFunc(const T, const T, const typename T::type), const bitmap_t &source, bitmap_t &destination,
 	const uint32_t xOffset, const uint32_t yOffset) noexcept
