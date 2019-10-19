@@ -245,18 +245,18 @@ using pngGrey16_t = pngGrey_t<uint16_t>;
 using pngGreyA8_t = pngGreyA_t<uint8_t>;
 using pngGreyA16_t = pngGreyA_t<uint16_t>;
 
-template<typename T> bool readRGB(stream_t &stream, T &pixel) noexcept
+template<typename T> bool readRGB(stream_t &stream, T &pixel)
 	{ return stream.read(pixel.r) && stream.read(pixel.g) && stream.read(pixel.b); }
-template<typename T> bool readRGBA(stream_t &stream, T &pixel) noexcept
+template<typename T> bool readRGBA(stream_t &stream, T &pixel)
 	{ return readRGB(stream, pixel) && stream.read(pixel.a); }
-template<typename T> bool readGrey(stream_t &stream, T &pixel) noexcept
+template<typename T> bool readGrey(stream_t &stream, T &pixel)
 	{ return stream.read(pixel.v); }
-template<typename T> bool readGreyA(stream_t &stream, T &pixel) noexcept
+template<typename T> bool readGreyA(stream_t &stream, T &pixel)
 	{ return readGrey(stream, pixel) && stream.read(pixel.a); }
 
 template<typename T> T safeIndex(const T *const data, int32_t index, int32_t offset) noexcept
-	{ return index >= 0 && offset >= 0 ? data[index + offset] : T(); }
-template<typename T> auto filterFunc_t() -> T (*)(const T *const, const bitmapRegion_t &, const uint32_t, const uint32_t) noexcept;
+	{ return index >= 0 && offset >= 0 ? data[index + offset] : T{}; }
+template<typename T> auto filterFunc_t() noexcept -> T (*)(const T *const, const bitmapRegion_t &, const uint32_t, const uint32_t) noexcept;
 template<typename T> using filter_t = decltype(filterFunc_t<T>());
 enum class filterTypes_t : uint8_t { none, sub, up, average, paeth };
 
