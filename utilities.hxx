@@ -293,21 +293,21 @@ inline uint16_t filterPaeth(const uint16_t a, const uint16_t b, const uint16_t c
 	return uint16_t(upper << 8U) | lower;
 }
 
-template<typename T> pngRGB_t<T> filterPaeth(pngRGB_t<T> a, pngRGB_t<T> b, pngRGB_t<T> c) noexcept
+template<typename T> pngRGB_t<T> filterPaeth(const pngRGB_t<T> &a, const pngRGB_t<T> &b, const pngRGB_t<T> &c) noexcept
 	{ return {filterPaeth(a.r, b.r, c.r), filterPaeth(a.g, b.g, c.g), filterPaeth(a.b, b.b, c.b)}; }
-template<typename T> pngGrey_t<T> filterPaeth(pngGrey_t<T> a, pngGrey_t<T> b, pngGrey_t<T> c) noexcept
+template<typename T> pngGrey_t<T> filterPaeth(const pngGrey_t<T> &a, const pngGrey_t<T> &b, const pngGrey_t<T> &c) noexcept
 	{ return {filterPaeth(a.v, b.v, c.v)}; }
 
-template<typename T> pngRGBA_t<T> filterPaeth(pngRGBA_t<T> a, pngRGBA_t<T> b, pngRGBA_t<T> c) noexcept
+template<typename T> pngRGBA_t<T> filterPaeth(const pngRGBA_t<T> &a, const pngRGBA_t<T> &b, const pngRGBA_t<T> &c) noexcept
 {
 	using pngRGBn_t = typename pngRGBA_t<T>::pngRGBn_t;
-	return {filterPaeth(pngRGBn_t(a), pngRGBn_t(b), pngRGBn_t(c)), filterPaeth(a.a, b.a, c.a)};
+	return {filterPaeth(static_cast<const pngRGBn_t &>(a), static_cast<const pngRGBn_t &>(b), static_cast<const pngRGBn_t &>(c)), filterPaeth(a.a, b.a, c.a)};
 }
 
-template<typename T> pngGreyA_t<T> filterPaeth(pngGreyA_t<T> a, pngGreyA_t<T> b, pngGreyA_t<T> c) noexcept
+template<typename T> pngGreyA_t<T> filterPaeth(const pngGreyA_t<T> &a, const pngGreyA_t<T> &b, const pngGreyA_t<T> &c) noexcept
 {
 	using pngGreyN_t = typename pngGreyA_t<T>::pngGreyN_t;
-	return {filterPaeth(pngGreyN_t(a), pngGreyN_t(b), pngGreyN_t(c)), filterPaeth(a.a, b.a, c.a)};
+	return {filterPaeth(static_cast<const pngGreyN_t &>(a), static_cast<const pngGreyN_t &>(b), static_cast<const pngGreyN_t &>(c)), filterPaeth(a.a, b.a, c.a)};
 }
 
 template<typename T> T filterPaeth(const T *const data, const bitmapRegion_t &frame, const uint32_t x, const uint32_t y) noexcept
