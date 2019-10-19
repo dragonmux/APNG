@@ -29,9 +29,9 @@ struct chunkType_t final
 {
 private:
 	std::array<uint8_t, 4> _type;
-	chunkType_t() = delete;
 
 public:
+	chunkType_t() = delete;
 	template<typename... T, char [sizeof...(T) == 4] = nullptr> constexpr chunkType_t(T... value) noexcept :
 		_type{uint8_t(value)...} { }
 
@@ -55,18 +55,18 @@ private:
 	std::unique_ptr<uint8_t[]> _chunkData;
 
 	chunk_t() noexcept : _length(0), _chunkType{0, 0, 0, 0}, _chunkData(nullptr) { }
-	chunk_t(const chunk_t &) = delete;
-	chunk_t &operator =(const chunk_t &) = delete;
 
 public:
 	chunk_t(chunk_t &&chunk) noexcept : _length(chunk._length), _chunkType(chunk._chunkType), _chunkData(std::move(chunk._chunkData)) { }
 	chunk_t &operator =(chunk_t &&chunk) noexcept;
-	~chunk_t() noexcept { }
+	~chunk_t() noexcept = default;
 	uint32_t length() const noexcept { return _length; }
 	const chunkType_t &type() const noexcept { return _chunkType; }
 	const uint8_t *data() const noexcept { return _chunkData.get(); }
 
 	static chunk_t loadChunk(stream_t &stream);
+	chunk_t(const chunk_t &) = delete;
+	chunk_t &operator =(const chunk_t &) = delete;
 };
 
 struct APNG_API bitDepth_t final
