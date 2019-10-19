@@ -16,8 +16,12 @@ struct stream_t
 {
 protected:
 	stream_t() noexcept = default;
+	stream_t(stream_t &&) = default;
+	stream_t &operator =(stream_t &&) = default;
 
 public:
+	virtual ~stream_t() = default;
+
 	template<typename T> bool read(T &value) noexcept
 		{ return read(&value, sizeof(T)); }
 	template<typename T, size_t N> bool read(std::array<T, N> &value) noexcept
@@ -34,6 +38,9 @@ public:
 	virtual bool read(void *const, const size_t, size_t &) { throw notImplemented_t(); }
 	virtual bool write(const void *const, const size_t) { throw notImplemented_t(); }
 	virtual bool atEOF() const { throw notImplemented_t(); }
+
+	stream_t(const stream_t &) = delete;
+	stream_t &operator =(const stream_t &) = delete;
 };
 
 struct APNG_API fileStream_t final : public stream_t
@@ -48,7 +55,7 @@ private:
 public:
 	fileStream_t(const char *const fileName, const int32_t mode);
 	fileStream_t(fileStream_t &&stream) noexcept : fileStream_t{} { swap(stream); }
-	~fileStream_t() noexcept;
+	~fileStream_t() noexcept final override;
 	void operator =(fileStream_t &&stream) noexcept { swap(stream); }
 
 	bool read(void *const value, const size_t valueLen, size_t &countRead) final override;
@@ -73,6 +80,7 @@ private:
 public:
 	memoryStream_t(void *const stream, const size_t streamLength) noexcept;
 	memoryStream_t(memoryStream_t &&stream) noexcept : memoryStream_t{} { swap(stream); }
+	~memoryStream_t() noexcept override = default;
 	void operator =(memoryStream_t &&stream) noexcept { swap(stream); }
 
 	bool read(void *const value, const size_t valueLen, size_t &countRead) noexcept final override;
@@ -107,7 +115,7 @@ private:
 public:
 	zlibStream_t(stream_t &sourceStream, const mode_t streamMode);
 	zlibStream_t(const zlibStream_t &stream) noexcept : zlibStream_t{} { clone(stream); }
-	~zlibStream_t() noexcept;
+	~zlibStream_t() noexcept override;
 	void operator =(const zlibStream_t &stream) noexcept { clone(stream); }
 
 	bool read(void *const value, const size_t valueLen, size_t &countRead) final override;
