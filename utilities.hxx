@@ -412,12 +412,17 @@ template<typename T> T as(const uint8_t *const data, const size_t index) noexcep
 	return result;
 }
 
+template<typename T> void copyBack(uint8_t *const data, const size_t index, const T &value) noexcept
+{
+	const size_t offset = index * sizeof(T);
+	memcpy(data + offset, &value, sizeof(T));
+}
+
 template<typename T> void compFrame(T compFunc(const T, const T, const typename T::type), const bitmap_t &source, bitmap_t &destination,
 	const uint32_t xOffset, const uint32_t yOffset) noexcept
 {
 	if ((source.width() + xOffset) > destination.width() || (source.height() + yOffset) > destination.height())
 		return;
-	const auto dstData = reinterpret_cast<T *>(destination.data());
 	const uint32_t width = source.width();
 	const uint32_t height = source.height();
 	const T trans = source.transparent<T>();
@@ -430,10 +435,9 @@ template<typename T> void compFrame(T compFunc(const T, const T, const typename 
 			const uint32_t offsetSrc = x + (y * width);
 			const uint32_t offsetDst = (x + xOffset) + ((y + yOffset) * destination.width());
 			const auto srcValue = as<T>(source.data(), offsetSrc);
-			if (source.hasTransparency())
-				dstData[offsetDst] = compFunc(dstData[offsetDst], srcValue, trans == srcValue ? 0 : max);
-			else
-				dstData[offsetDst] = compFunc(dstData[offsetDst], srcValue, max);
+			const auto dstValue = as<T>(destination.data(), offsetDst);
+			const auto result = compFunc(dstValue, srcValue, source.hasTransparency() && trans == srcValue ? 0 : max);
+			copyBack(destination.data(), offsetDst, result);
 		}
 	}
 }
