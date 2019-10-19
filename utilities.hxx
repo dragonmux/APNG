@@ -164,11 +164,11 @@ public:
 	pngRGBA_t<T> operator &(const pngRGBA_t<T> &mask) const noexcept
 		{ return {pngRGBn_t(*this) & pngRGBn_t(mask), T(a & mask.a)}; }
 	pngRGBA_t<uint8_t> &operator +=(const pngRGBA_t<uint8_t> &pixel) noexcept
-		{ return *static_cast<pngRGBn_t *>(this) += pngRGBn_t(pixel), a += pixel.a, *this; }
+		{ return *static_cast<pngRGBn_t *>(this) += static_cast<const pngRGBn_t &>(pixel), a += pixel.a, *this; }
 
 	pngRGBA_t<uint16_t> &operator +=(const pngRGBA_t<uint16_t> &pixel) noexcept
 	{
-		*static_cast<pngRGBn_t *>(this) += pngRGBn_t(pixel);
+		*static_cast<pngRGBn_t *>(this) += static_cast<const pngRGBn_t &>(pixel);
 		a = (uint8_t((a >> 8U) + (pixel.a >> 8U)) << 8U) | uint8_t(a + pixel.a);
 		return *this;
 	}
@@ -224,11 +224,11 @@ public:
 	pngGreyA_t<T> operator &(const pngGreyA_t<T> &mask) const noexcept
 		{ return {pngGreyN_t(*this) & pngGreyN_t(mask), T(a & mask.a)}; }
 	pngGreyA_t<uint8_t> &operator +=(const pngGreyA_t<uint8_t> &pixel) noexcept
-		{ return *static_cast<pngGreyN_t *>(this) += pngGreyN_t(pixel), a += pixel.a, *this; }
+		{ return *static_cast<pngGreyN_t *>(this) += static_cast<const pngGreyN_t &>(pixel), a += pixel.a, *this; }
 
 	pngGreyA_t<uint16_t> &operator +=(const pngGreyA_t<uint16_t> &pixel) noexcept
 	{
-		*static_cast<pngGreyN_t *>(this) += pngGreyN_t(pixel);
+		*static_cast<pngGreyN_t *>(this) += static_cast<const pngGreyN_t &>(pixel);
 		a = (uint8_t((a >> 8U) + (pixel.a >> 8U)) << 8U) | uint8_t(a + pixel.a);
 		return *this;
 	}
