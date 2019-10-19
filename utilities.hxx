@@ -1,8 +1,8 @@
 #ifndef UTILITIES_HXX
 #define UTILITIES_HXX
 
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 #include <limits>
 #include "stream.hxx"
 
@@ -270,7 +270,7 @@ template<typename T> T filterAverage(const T *const data, const bitmapRegion_t &
 	return (up >> 1U) + (left >> 1U) + ((up & left) & 1U);
 }
 
-uint8_t filterPaeth(const uint8_t a, const uint8_t b, const uint8_t c) noexcept
+inline uint8_t filterPaeth(const uint8_t a, const uint8_t b, const uint8_t c) noexcept
 {
 	const int16_t pred = a + b - c;
 	const uint16_t absA = abs(pred - a);
