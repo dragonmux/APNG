@@ -26,9 +26,9 @@ public:
 };
 
 inline uint16_t read16(const uint8_t *const value) noexcept
-	{ return (uint16_t(value[0]) << 8U) | uint16_t(value[1]); }
+	{ return uint16_t(value[0] << 8U) | uint16_t(value[1]); }
 inline uint32_t read32(const uint8_t *const value) noexcept
-	{ return (uint32_t(value[0]) << 24U) | (uint32_t(value[1]) << 16U) | (uint32_t(value[2]) << 8U) | uint32_t(value[3]); }
+	{ return uint32_t(value[0] << 24U) | uint32_t(value[1] << 16U) | uint32_t(value[2] << 8U) | uint32_t(value[3]); }
 
 template<typename T> struct makeUnique_ { using uniqueType = std::unique_ptr<T>; };
 template<typename T> struct makeUnique_<T []> { using arrayType = std::unique_ptr<T []>; };
@@ -55,9 +55,7 @@ inline uint32_t swap32(const uint32_t i) noexcept
 inline void swap(uint32_t &i) noexcept { i = swap32(i); }
 
 inline uint16_t swap16(const uint16_t i) noexcept
-{
-	return ((i >> 8U) & 0xFFU) | ((i & 0xFFU) << 8U);
-}
+	{ return uint8_t(i >> 8U) | uint16_t(uint8_t(i) << 8U); }
 inline void swap(uint16_t &i) noexcept { i = swap16(i); }
 
 template<typename T> bool contains(const std::vector<T> &list, bool condition(const T &)) noexcept
