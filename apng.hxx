@@ -82,6 +82,7 @@ public:
 	bitDepth_t(const uint8_t depth);
 	bitDepth_t(const bitDepth_t &depth) noexcept = default;
 	bitDepth_t(bitDepth_t &&depth) noexcept = default;
+	~bitDepth_t() noexcept = default;
 	bitDepth_t &operator =(const bitDepth_t &depth) noexcept = default;
 	bitDepth_t &operator =(bitDepth_t &&depth) noexcept = default;
 	operator _bitDepth_t() const noexcept { return value; }
@@ -100,6 +101,7 @@ public:
 	colourType_t(const uint8_t type);
 	colourType_t(const colourType_t &type) noexcept = default;
 	colourType_t(colourType_t &&type) noexcept = default;
+	~colourType_t() noexcept = default;
 	colourType_t &operator =(const colourType_t &type) noexcept = default;
 	colourType_t &operator =(colourType_t &&type) noexcept = default;
 	operator _colourType_t() const noexcept { return value; }
@@ -117,6 +119,7 @@ public:
 	constexpr interlace_t() noexcept : value{none} { }
 	interlace_t(const uint8_t type);
 	interlace_t(const interlace_t &type) noexcept = default;
+	~interlace_t() noexcept = default;
 	interlace_t(interlace_t &&type) noexcept = default;
 	interlace_t &operator =(const interlace_t &type) noexcept = default;
 	interlace_t &operator =(interlace_t &&type) noexcept = default;
