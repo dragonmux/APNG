@@ -78,12 +78,12 @@ private:
 	_bitDepth_t value;
 
 public:
-	constexpr bitDepth_t() noexcept : value(bps8) { }
+	constexpr bitDepth_t() noexcept : value{bps8} { }
 	bitDepth_t(const uint8_t depth);
-	bitDepth_t(const bitDepth_t &depth) noexcept : value(depth.value) { }
-	bitDepth_t(bitDepth_t &&depth) noexcept : value(depth.value) { }
-	bitDepth_t &operator =(const bitDepth_t &depth) noexcept { value = depth.value; return *this; }
-	bitDepth_t &operator =(bitDepth_t &&depth) noexcept { value = depth.value; return *this; }
+	bitDepth_t(const bitDepth_t &depth) noexcept = default;
+	bitDepth_t(bitDepth_t &&depth) noexcept = default;
+	bitDepth_t &operator =(const bitDepth_t &depth) noexcept = default;
+	bitDepth_t &operator =(bitDepth_t &&depth) noexcept = default;
 	operator _bitDepth_t() const noexcept { return value; }
 };
 
@@ -96,12 +96,12 @@ private:
 	_colourType_t value;
 
 public:
-	constexpr colourType_t() noexcept : value(rgb) { }
+	constexpr colourType_t() noexcept : value{rgb} { }
 	colourType_t(const uint8_t type);
-	colourType_t(const colourType_t &type) noexcept : value(type.value) { }
-	colourType_t(colourType_t &&type) noexcept : value(type.value) { }
-	colourType_t &operator =(const colourType_t &type) noexcept { value = type.value; return *this; }
-	colourType_t &operator =(colourType_t &&type) noexcept { value = type.value; return *this; }
+	colourType_t(const colourType_t &type) noexcept = default;
+	colourType_t(colourType_t &&type) noexcept = default;
+	colourType_t &operator =(const colourType_t &type) noexcept = default;
+	colourType_t &operator =(colourType_t &&type) noexcept = default;
 	operator _colourType_t() const noexcept { return value; }
 };
 
@@ -114,12 +114,12 @@ private:
 	_interlace_t value;
 
 public:
-	constexpr interlace_t() noexcept : value(none) { }
+	constexpr interlace_t() noexcept : value{none} { }
 	interlace_t(const uint8_t type);
-	interlace_t(const interlace_t &type) noexcept : value(type.value) { }
-	interlace_t(interlace_t &&type) noexcept : value(type.value) { }
-	interlace_t &operator =(const interlace_t &type) noexcept { value = type.value; return *this; }
-	interlace_t &operator =(interlace_t &&type) noexcept { value = type.value; return *this; }
+	interlace_t(const interlace_t &type) noexcept = default;
+	interlace_t(interlace_t &&type) noexcept = default;
+	interlace_t &operator =(const interlace_t &type) noexcept = default;
+	interlace_t &operator =(interlace_t &&type) noexcept = default;
 	operator _interlace_t() const noexcept { return value; }
 };
 
@@ -132,12 +132,13 @@ private:
 	_disposeOp_t value;
 
 public:
-	constexpr disposeOp_t() noexcept : value(background) { }
+	constexpr disposeOp_t() noexcept : value{background} { }
 	disposeOp_t(const uint8_t op);
-	disposeOp_t(const disposeOp_t &op) noexcept : value(op.value) { }
-	disposeOp_t(disposeOp_t &&op) noexcept : value(op.value) { }
-	disposeOp_t &operator =(const disposeOp_t &op) noexcept { value = op.value; return *this; }
-	disposeOp_t &operator =(disposeOp_t &&op) noexcept { value = op.value; return *this; }
+	disposeOp_t(const disposeOp_t &op) noexcept = default;
+	disposeOp_t(disposeOp_t &&op) noexcept = default;
+	~disposeOp_t() noexcept = default;
+	disposeOp_t &operator =(const disposeOp_t &op) noexcept = default;
+	disposeOp_t &operator =(disposeOp_t &&op) noexcept = default;
 	operator _disposeOp_t() const noexcept { return value; }
 };
 
@@ -150,12 +151,13 @@ private:
 	_blendOp_t value;
 
 public:
-	constexpr blendOp_t() noexcept : value(source) { }
+	constexpr blendOp_t() noexcept : value{source} { }
 	blendOp_t(const uint8_t op);
-	blendOp_t(const blendOp_t &op) noexcept : value(op.value) { }
-	blendOp_t(blendOp_t &&op) noexcept : value(op.value) { }
-	blendOp_t &operator =(const blendOp_t &op) noexcept { value = op.value; return *this; }
-	blendOp_t &operator =(blendOp_t &&op) noexcept { value = op.value; return *this; }
+	blendOp_t(const blendOp_t &op) noexcept = default;
+	blendOp_t(blendOp_t &&op) noexcept = default;
+	~blendOp_t() noexcept = default;
+	blendOp_t &operator =(const blendOp_t &op) noexcept = default;
+	blendOp_t &operator =(blendOp_t &&op) noexcept = default;
 	operator _blendOp_t() const noexcept { return value; }
 };
 
@@ -169,14 +171,11 @@ private:
 
 public:
 	constexpr acTL_t() noexcept : _frames(1), _loops(0) { }
-	acTL_t(acTL_t &&acTL) noexcept : _frames(acTL._frames), _loops(acTL._loops) { }
-	acTL_t(const acTL_t &) = delete;
-	acTL_t &operator =(const acTL_t &) = delete;
-	void operator =(acTL_t &&acTL) noexcept
-	{
-		_frames = acTL._frames;
-		_loops = acTL._loops;
-	}
+	acTL_t(const acTL_t &) = default;
+	acTL_t(acTL_t &&acTL) noexcept = default;
+	~acTL_t() noexcept = default;
+	acTL_t &operator =(const acTL_t &) = default;
+	acTL_t &operator =(acTL_t &&acTL) noexcept = default;
 
 	static acTL_t reinterpret(const chunk_t &chunk);
 	void check(const std::vector<chunk_t> &chunks) const;
@@ -202,26 +201,13 @@ private:
 	fcTL_t(const uint8_t *const data, const uint32_t frame) noexcept;
 
 public:
-	constexpr fcTL_t() noexcept : _frame(0), _sequenceIndex(0), _width(0), _height(0), _xOffset(0),
-		_yOffset(0), _delayN(0), _delayD(0), _disposeOp(), _blendOp() { }
-	fcTL_t(fcTL_t &&fcTL) noexcept : _frame(fcTL._frame), _sequenceIndex(fcTL._sequenceIndex),
-		_width(fcTL._width), _height(fcTL._height), _xOffset(fcTL._xOffset), _yOffset(fcTL._yOffset),
-		_delayN(fcTL._delayN), _delayD(fcTL._delayD), _disposeOp(fcTL._disposeOp), _blendOp(fcTL._blendOp) { }
-	fcTL_t(const fcTL_t &) = delete;
-	fcTL_t &operator =(const fcTL_t &) = delete;
-	void operator =(fcTL_t &&fcTL) noexcept
-	{
-		_frame = fcTL._frame;
-		_sequenceIndex = fcTL._sequenceIndex;
-		_width = fcTL._width;
-		_height = fcTL._height;
-		_xOffset = fcTL._xOffset;
-		_yOffset = fcTL._yOffset;
-		_delayN = fcTL._delayN;
-		_delayD = fcTL._delayD;
-		_disposeOp = fcTL._disposeOp;
-		_blendOp = fcTL._blendOp;
-	}
+	constexpr fcTL_t() noexcept : _frame{}, _sequenceIndex{}, _width{}, _height{}, _xOffset{},
+		_yOffset{}, _delayN{}, _delayD{}, _disposeOp{}, _blendOp{} { }
+	fcTL_t(const fcTL_t &fcTL) noexcept = default;
+	fcTL_t(fcTL_t &&) = default;
+	~fcTL_t() noexcept = default;
+	fcTL_t &operator =(const fcTL_t &) = default;
+	fcTL_t &operator =(fcTL_t &&) = default;
 
 	static fcTL_t reinterpret(const chunk_t &chunk, const uint32_t frame);
 	void check(const uint32_t pngWidth, const uint32_t pngHeight, const bool first = false);
@@ -256,7 +242,8 @@ private:
 
 public:
 	constexpr displayTime_t(const uint32_t N, const uint32_t D) noexcept : delayN{N}, delayD{D} { }
-	displayTime_t(const displayTime_t &time) noexcept : delayN{time.delayN}, delayD{time.delayD} { }
+	displayTime_t(const displayTime_t &time) noexcept = default;
+	~displayTime_t() noexcept = default;
 	void waitFor() const noexcept;
 
 	displayTime_t(displayTime_t &&) = delete;
