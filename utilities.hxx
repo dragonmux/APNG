@@ -10,17 +10,19 @@ struct bitmapRegion_t final
 {
 private:
 	const uint32_t _width, _height;
-	bitmapRegion_t() = delete;
-	bitmapRegion_t &operator =(const bitmapRegion_t &) = delete;
-	bitmapRegion_t &operator =(bitmapRegion_t &&region) = delete;
 
 public:
 	constexpr bitmapRegion_t(const uint32_t width, const uint32_t height) noexcept : _width(width), _height(height) { }
-	bitmapRegion_t(const bitmapRegion_t &region) noexcept : _width(region._width), _height(region._height) { }
-	bitmapRegion_t(bitmapRegion_t &&region) noexcept : _width(region._width), _height(region._height) { }
+	bitmapRegion_t(const bitmapRegion_t &region) noexcept = default;
+	bitmapRegion_t(bitmapRegion_t &&region) noexcept = default;
+	~bitmapRegion_t() noexcept = default;
 
 	uint32_t width() const noexcept { return _width; }
 	uint32_t height() const noexcept { return _height; }
+
+	bitmapRegion_t() = delete;
+	bitmapRegion_t &operator =(const bitmapRegion_t &) = delete;
+	bitmapRegion_t &operator =(bitmapRegion_t &&region) = delete;
 };
 
 inline uint16_t read16(const uint8_t *const value) noexcept
