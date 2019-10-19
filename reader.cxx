@@ -68,8 +68,8 @@ public:
 			const size_t amount = valueDelta > chunkDelta ? chunkDelta : valueDelta;
 			if (isSequence && pos == 0)
 			{
-				const uint32_t sequenceNum = *reinterpret_cast<const uint32_t *>(_chunks[chunk]->data());
-				if (swap32(sequenceNum) != ++sequenceIndex)
+				const uint32_t sequenceNum = read32(_chunks[chunk]->data());
+				if (sequenceNum != ++sequenceIndex)
 					throw invalidPNG_t{};
 			}
 
