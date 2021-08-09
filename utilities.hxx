@@ -164,8 +164,13 @@ public:
 		{ return {static_cast<const pngRGBn_t &>(*this) & mask, T(a & mask)}; }
 	pngRGBA_t<T> operator &(const pngRGBA_t<T> &mask) const noexcept
 		{ return {static_cast<const pngRGBn_t &>(*this) & static_cast<const pngRGBn_t &>(mask), T(a & mask.a)}; }
+
 	pngRGBA_t<uint8_t> &operator +=(const pngRGBA_t<uint8_t> &pixel) noexcept
-		{ return *static_cast<pngRGBn_t *>(this) += static_cast<const pngRGBn_t &>(pixel), a += pixel.a, *this; }
+	{
+		*static_cast<pngRGBn_t *>(this) += static_cast<const pngRGBn_t &>(pixel);
+		a += pixel.a;
+		return *this;
+	}
 
 	pngRGBA_t<uint16_t> &operator +=(const pngRGBA_t<uint16_t> &pixel) noexcept
 	{
@@ -211,8 +216,8 @@ public:
 
 	using type = T;
 	using pngGreyN_t = pngGrey_t<T>;
-	constexpr pngGreyA_t() noexcept : pngGrey_t<T>(), a(0) { }
-	constexpr pngGreyA_t(const pngGreyN_t grey, const T _a) noexcept : pngGreyN_t(grey), a(_a) { }
+	constexpr pngGreyA_t() noexcept : pngGrey_t<T>{}, a{} { }
+	constexpr pngGreyA_t(const pngGreyN_t grey, const T _a) noexcept : pngGreyN_t{grey}, a{_a} { }
 	bool operator ==(const pngGreyA_t<T> &pixel) const noexcept
 		{ return static_cast<const pngGreyN_t &>(*this) == static_cast<const pngGreyN_t &>(pixel) && a == pixel.a; }
 	pngGreyA_t<T> operator +(const pngGreyA_t<T> &pixel) const noexcept
@@ -225,8 +230,13 @@ public:
 		{ return {static_cast<const pngGreyN_t &>(*this) & mask, T(a & mask)}; }
 	pngGreyA_t<T> operator &(const pngGreyA_t<T> &mask) const noexcept
 		{ return {static_cast<const pngGreyN_t &>(*this) & static_cast<const pngGreyN_t &>(mask), T(a & mask.a)}; }
+
 	pngGreyA_t<uint8_t> &operator +=(const pngGreyA_t<uint8_t> &pixel) noexcept
-		{ return *static_cast<pngGreyN_t *>(this) += static_cast<const pngGreyN_t &>(pixel), a += pixel.a, *this; }
+	{
+		*static_cast<pngGreyN_t *>(this) += static_cast<const pngGreyN_t &>(pixel);
+		a += pixel.a;
+		return *this;
+	}
 
 	pngGreyA_t<uint16_t> &operator +=(const pngGreyA_t<uint16_t> &pixel) noexcept
 	{
@@ -404,7 +414,7 @@ template<> inline pngRGB16_t bitmap_t::transparent<pngRGB16_t>() const noexcept 
 template<> inline pngGrey8_t bitmap_t::transparent<pngGrey8_t>() const noexcept { return pixelFromTransGrey<uint8_t>(transValue[0]); }
 template<> inline pngGrey16_t bitmap_t::transparent<pngGrey16_t>() const noexcept { return pixelFromTransGrey<uint16_t>(transValue[0]); }
 
-template<typename T> T as(const uint8_t *const data, const size_t index) noexcept
+template<typename T> inline T as(const uint8_t *const data, const size_t index) noexcept
 {
 	T result{};
 	const size_t offset = index * sizeof(T);
@@ -412,7 +422,7 @@ template<typename T> T as(const uint8_t *const data, const size_t index) noexcep
 	return result;
 }
 
-template<typename T> void copyBack(uint8_t *const data, const size_t index, const T &value) noexcept
+template<typename T> inline void copyBack(uint8_t *const data, const size_t index, const T &value) noexcept
 {
 	const size_t offset = index * sizeof(T);
 	memcpy(data + offset, &value, sizeof(T));
