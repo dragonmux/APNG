@@ -5,8 +5,10 @@
 #include "utilities.hxx"
 #include "apng.hxx"
 
-bool chunkType_t::operator ==(const uint8_t *const value) const noexcept { return memcmp(value, _type.data(), _type.size()) == 0; }
-bool chunkType_t::operator !=(const uint8_t *const value) const noexcept { return memcmp(value, _type.data(), _type.size()) != 0; }
+bool chunkType_t::operator ==(const uint8_t *const value) const noexcept
+	{ return memcmp(value, _type.data(), _type.size()) == 0; }
+bool chunkType_t::operator !=(const uint8_t *const value) const noexcept
+	{ return memcmp(value, _type.data(), _type.size()) != 0; }
 
 chunk_t &chunk_t::operator =(chunk_t &&chunk) noexcept
 {
@@ -52,7 +54,7 @@ private:
 
 public:
 	explicit chunkStream_t(chunkList_t &&chunks, const bool sequence = false, const size_t seqIndex = 0) noexcept :
-		_chunks{std::move(chunks)}, chunk{}, pos{}, isSequence{sequence}, sequenceIndex{seqIndex} { }
+		stream_t{}, _chunks{std::move(chunks)}, chunk{}, pos{}, isSequence{sequence}, sequenceIndex{seqIndex} { }
 
 	bool read(void *const value, const size_t valueLen, size_t &actualLen) final override
 	{
@@ -152,7 +154,7 @@ bitmap_t::bitmap_t(const uint32_t width, const uint32_t height, const pixelForma
 	memset(_data.get(), 0, length);
 }
 
-apng_t::apng_t(stream_t &stream) : _defaultFrame{}, transColourValid(false), transColour{}
+apng_t::apng_t(stream_t &stream) : _defaultFrame{}, transColourValid{false}, transColour{}
 {
 	chunkList_t chunks;
 	checkSig(stream);
@@ -217,6 +219,8 @@ apng_t::apng_t(stream_t &stream) : _defaultFrame{}, transColourValid(false), tra
 	chunks.pop_back();
 	if (!isIEND(end) || end.length() != 0)
 		throw invalidPNG_t{};
+	else if (!contains(chunks, isIDAT))
+		throw invalidPNG_t{};
 
 	const chunk_t *const acTL = extractFirst(chunks, isACTL);
 	if (!acTL || extract(chunks, isACTL).size() != 1 || acTL->length() != 8)
@@ -224,7 +228,7 @@ apng_t::apng_t(stream_t &stream) : _defaultFrame{}, transColourValid(false), tra
 	controlChunk = acTL_t::reinterpret(*acTL);
 	controlChunk.check(chunks);
 
-	if (!contains(chunks, isIDAT) || isAfter(acTL, extractFirst(chunks, isIDAT)) || !contains(chunks, isFCTL))
+	if (isAfter(acTL, extractFirst(chunks, isIDAT)) || !contains(chunks, isFCTL))
 		throw invalidPNG_t{};
 	const auto fcTLChunks = extractIters(chunks, isFCTL);
 	const chunk_t &fcTL = *fcTLChunks[0];
@@ -246,7 +250,8 @@ void apng_t::validateHeader()
 {
 	if (!_width || !_height || (_width >> 31U) || (_height >> 31U))
 		throw invalidPNG_t{};
-	if (_colourType == colourType_t::rgb || _colourType == colourType_t::greyscaleAlpha || _colourType == colourType_t::rgba)
+	if (_colourType == colourType_t::rgb || _colourType == colourType_t::greyscaleAlpha ||
+		_colourType == colourType_t::rgba)
 	{
 		if (_bitDepth != bitDepth_t::bps8 && _bitDepth != bitDepth_t::bps16)
 			throw invalidPNG_t{};
@@ -275,14 +280,16 @@ pixelFormat_t apng_t::pixelFormat() const
 		return pixelFormat_t::format24bppRGB;
 	else if (_colourType == colourType_t::greyscale)
 	{
-		if (_bitDepth == bitDepth_t::bps8 || _bitDepth == bitDepth_t::bps4 || _bitDepth == bitDepth_t::bps2 || _bitDepth == bitDepth_t::bps1)
+		if (_bitDepth == bitDepth_t::bps8 || _bitDepth == bitDepth_t::bps4 ||
+			_bitDepth == bitDepth_t::bps2 || _bitDepth == bitDepth_t::bps1)
 			return pixelFormat_t::format8bppGrey;
 		else if (_bitDepth == bitDepth_t::bps16)
 			return pixelFormat_t::format16bppGrey;
 	}
 	else if (_colourType == colourType_t::greyscaleAlpha)
 	{
-		if (_bitDepth == bitDepth_t::bps8 || _bitDepth == bitDepth_t::bps4 || _bitDepth == bitDepth_t::bps2 || _bitDepth == bitDepth_t::bps1)
+		if (_bitDepth == bitDepth_t::bps8 || _bitDepth == bitDepth_t::bps4 ||
+			_bitDepth == bitDepth_t::bps2 || _bitDepth == bitDepth_t::bps1)
 			return pixelFormat_t::format8bppGreyA;
 		else if (_bitDepth == bitDepth_t::bps16)
 			return pixelFormat_t::format16bppGreyA;
@@ -387,9 +394,9 @@ void apng_t::processFrame(const chunkIter_t &chunkBegin, const chunkIter_t &chun
 		partialFrame.transparent(transColour);
 
 	// This constructs a disposeOp_t::background initialised bitmap anyway.
-	std::unique_ptr<bitmap_t> frame(new bitmap_t(_width, _height, format));
+	auto frame = makeUnique<bitmap_t>(_width, _height, format);
 	if (fcTL.disposeOp() == disposeOp_t::none && frameIndex != 0)
-		compositFrame<blendOp_t::source>(*_frames.back().second, *frame, format, fcTL_t());
+		compositFrame<blendOp_t::source>(*_frames.back().second, *frame, format, fcTL_t{});
 	else if (fcTL.disposeOp() == disposeOp_t::previous)
 	{
 		auto source = _frames.end();
