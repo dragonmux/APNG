@@ -4,13 +4,13 @@
 #include "internals.hxx"
 
 constexpr uint32_t calcPolynomial(const uint8_t bit) noexcept { return 1U << (31U - bit); }
-template<typename T, typename... U> constexpr typename std::enable_if<sizeof...(U) != 0, uint32_t>::type calcPolynomial(T bit, U... bits) noexcept
-	{ return calcPolynomial(bit) | calcPolynomial(bits...); }
+template<typename T, typename... U> constexpr typename std::enable_if<sizeof...(U) != 0, uint32_t>::type
+	calcPolynomial(T bit, U... bits) noexcept { return calcPolynomial(bit) | calcPolynomial(bits...); }
 
-struct crc32_t
+struct crc32_t final
 {
 private:
-	constexpr static const uint32_t poly = calcPolynomial(0, 1, 2, 4, 5, 7, 8, 10, 11, 12, 16, 22, 23, 26);
+	constexpr static uint32_t poly = calcPolynomial(0, 1, 2, 4, 5, 7, 8, 10, 11, 12, 16, 22, 23, 26);
 	static_assert(poly == 0xEDB88320u, "Polynomial calculation failure");
 	static std::array<const uint32_t, 256> crcTable;
 
