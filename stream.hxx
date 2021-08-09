@@ -23,7 +23,7 @@ public:
 	template<typename T> bool read(T &value)
 		{ return read(&value, sizeof(T)); }
 	template<typename T, size_t N> bool read(std::array<T, N> &value)
-		{ return read(value.data(), N); }
+		{ return read(value.data(), sizeof(T) * N); }
 
 	bool read(void *const value, const size_t valueLen)
 	{
@@ -107,7 +107,7 @@ private:
 	uint8_t bufferOut[chunkLen];
 	bool eos;
 
-	zlibStream_t() noexcept : source{}, mode{mode_t::inflate}, stream{}, bufferUsed{}, bufferAvail{},
+	zlibStream_t() noexcept : stream_t{}, source{}, mode{mode_t::inflate}, stream{}, bufferUsed{}, bufferAvail{},
 		bufferIn{}, bufferOut{}, eos{true} { }
 
 public:

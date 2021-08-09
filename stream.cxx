@@ -58,7 +58,7 @@ void memoryStream_t::swap(memoryStream_t &stream) noexcept
 	std::swap(pos, stream.pos);
 }
 
-zlibStream_t::zlibStream_t(stream_t &sourceStream, const mode_t streamMode) :
+zlibStream_t::zlibStream_t(stream_t &sourceStream, const mode_t streamMode) : stream_t{},
 	source{&sourceStream}, mode{streamMode}, stream{}, bufferUsed{}, bufferAvail{},
 	bufferIn{}, bufferOut{}, eos{false}
 {
@@ -106,7 +106,8 @@ bool zlibStream_t::read(void *const value, const size_t valueLen, size_t &countR
 				eos = true;
 		}
 
-		const size_t blockLen = (countRead + bufferAvail - bufferUsed) < valueLen ? (bufferAvail - bufferUsed) : (valueLen - countRead);
+		const size_t blockLen = (countRead + bufferAvail - bufferUsed) < valueLen ?
+			(bufferAvail - bufferUsed) : (valueLen - countRead);
 		memcpy(static_cast<char *>(value) + countRead, bufferOut + bufferUsed, blockLen);
 		countRead += blockLen;
 		bufferUsed += blockLen;
